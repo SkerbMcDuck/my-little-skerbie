@@ -327,7 +327,13 @@ def frame(bob=0, crouch=0, lean=0, head=(0, 0), ear=0, tail=0, scarf=0, eyes="op
     d = math.hypot(pw[0] - el[0], pw[1] - el[1]) or 1
     grip = (pw[0] + (pw[0] - el[0]) / d * 1.5, pw[1] + (pw[1] - el[1]) / d * 1.5)  # centre of the paw
     aim = round(math.degrees(math.atan2(pw[1] - el[1], pw[0] - el[0])))
+    # The far hand too (for twin weapons): the game draws its weapon behind the body.
+    _, fel, fpw = arm_joints(FAR_ARM_REST, farm)
+    fd = math.hypot(fpw[0] - fel[0], fpw[1] - fel[1]) or 1
+    fgrip = (fpw[0] + (fpw[0] - fel[0]) / fd * 1.5, fpw[1] + (fpw[1] - fel[1]) / fd * 1.5)
+    faim = round(math.degrees(math.atan2(fpw[1] - fel[1], fpw[0] - fel[0])))
     attach = {"head": [34 + hx, 2 + hy + oy], "hand": [round(grip[0]), round(grip[1]) + oy], "aim": aim,
+              "hand2": [round(fgrip[0]), round(fgrip[1]) + oy], "aim2": faim,
               "torso": [round(24 + lean * 0.5), 24 + by + oy], "root_dx": ox}
     return rows, attach
 

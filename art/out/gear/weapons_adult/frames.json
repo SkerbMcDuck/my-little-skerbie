@@ -1,0 +1,43 @@
+{
+  "width": 64,
+  "height": 64,
+  "fps": 10,
+  "dye_zones": {},
+  "animations": {
+    "bone_club": {
+      "row": 0,
+      "frames": 16,
+      "attach": []
+    },
+    "twin_knives": {
+      "row": 1,
+      "frames": 16,
+      "attach": []
+    },
+    "spear": {
+      "row": 2,
+      "frames": 16,
+      "attach": []
+    },
+    "hooked_blade": {
+      "row": 3,
+      "frames": 16,
+      "attach": []
+    },
+    "rune_staff": {
+      "row": 4,
+      "frames": 16,
+      "attach": []
+    },
+    "obsidian_greatsword": {
+      "row": 5,
+      "frames": 16,
+      "attach": []
+    }
+  },
+  "grip": [
+    32,
+    32
+  ],
+  "angle_step": 22.5
+}
