@@ -1,0 +1,13 @@
+{
+  "width": 225,
+  "height": 487,
+  "fps": 1,
+  "dye_zones": {},
+  "animations": {
+    "lair": {
+      "row": 0,
+      "frames": 1,
+      "attach": []
+    }
+  }
+}

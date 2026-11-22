@@ -1,0 +1,22 @@
+{
+  "width": 48,
+  "height": 24,
+  "fps": 6,
+  "dye_zones": {},
+  "animations": {
+    "hidden": {
+      "row": 0,
+      "frames": 1,
+      "attach": []
+    },
+    "open": {
+      "row": 1,
+      "frames": 4,
+      "attach": []
+    }
+  },
+  "anchor": [
+    24,
+    12
+  ]
+}

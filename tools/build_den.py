@@ -12,7 +12,13 @@
 import json, math, os, random, sys
 
 TIER = sys.argv[1] if len(sys.argv) > 1 else "burrow"
-assert TIER == "burrow", "only the Burrow exists so far"
+assert TIER in ("burrow", "hideout", "lair"), "tier must be burrow, hideout or lair"
+#   burrow:  a rough dirt hollow, bare roots, one candle (look approved by George, 2026-11-22)
+#   hideout: stone-lined walls, root-carved shelves, a rug, a plank door in the root arch
+#   lair:    carved stone pillars, iron fixtures, banners, a trophy mount, rune-lit wall glyphs,
+#            flagstone floor, an iron-reinforced root door
+# All three share the surface, the tree, the hollow's shape and the roots, so the den visibly
+# upgrades in place. Buildables (bed, hearth, lanterns...) are separate sprites on the spots.
 W, H = 225, 487
 GROUND, DEN_TOP, DEN_FLOOR, DEEP = 136, 168, 372, 392   # key heights
 
@@ -28,9 +34,13 @@ PAL = {
     "R": "#3b2a22", "W": "#7a5636", "B": "#8b7a4a",
     # teal shadow for cool depth in the deep roots
     "t": "#1f3d44", "u": "#2c5560",
-    # candle: wax, flame
+    # candle: wax, flame (also the amber of the Lair's rune glyphs)
     "y": "#ffc8a8", "Y": "#ffd08a", "Z": "#ffb35c", "O": "#ff8a3d",
 }
+if TIER != "burrow":
+    PAL.update({"i": "#5a5e66", "w": "#c9cfd6",       # iron fixtures, rivets
+                "k": "#f2a0b0",                       # warm pink in the rug weave
+                "b": "#bfae8c", "a": "#a8945e"})      # bone (trophy), worn cloth/leather
 grid = [["." for _ in range(W)] for _ in range(H)]
 
 
@@ -189,6 +199,34 @@ for x in range(W):                              # floor edge line, where it meet
     if (x, DEN_FLOOR - 7) in hollow and (x, DEN_FLOOR - 6) in hollow:
         setp(x, DEN_FLOOR - 6, "p")
 
+# ---- 5b. Hideout and Lair: stone lining (and in the Lair, a flagstone floor) ----
+def dist_to_edge(x, y, cap):
+    for d in range(1, cap + 1):
+        if rim(x, y, d):
+            return d
+    return cap + 1
+
+
+if TIER != "burrow":
+    thick = 7 if TIER == "hideout" else 11
+    for (x, y) in sorted(hollow):
+        if (x, y) in set((px, py) for px, py in hollow if py < 178 and 100 <= px <= 130):
+            continue  # leave the shaft as dug earth
+        floor = y >= DEN_FLOOR - 6
+        d = dist_to_edge(x, y, thick)
+        if d > thick and not (floor and TIER == "lair"):
+            continue
+        # Bricks: 5 px rows, 9-11 px long, staggered; dark mortar; lit on the top-left.
+        bh = 5 if not floor else 3
+        row = y // bh
+        bw = 10 if not floor else 14
+        bx = (x + (row % 2) * bw // 2) % bw
+        if y % bh == 0 or bx == 0:
+            setp(x, y, "e")
+        else:
+            n = noise(x // 4, row, 2, 40 + row)
+            setp(x, y, "S" if (y % bh == 1 or bx == 1) and n > 0.35 else "U" if n < 0.25 else "T")
+
 # ---- 6. Bare roots: through the soil, across the den ceiling and down the walls ----
 ROOTS = [
     ([(88, 138), (70, 150), (44, 166), (22, 196), (10, 236)], 8, 3),
@@ -221,12 +259,101 @@ for _ in range(16):
                 lit = ((x + .5 - cx) * -0.6 + (y + .5 - cy) * -0.8) / r
                 setp(x, y, "S" if lit > 0.5 else "T" if lit > -0.3 else "U")
 
-# ---- 8. One candle on a dirt ledge in the left wall (the Burrow's only light) ----
-fill([(26, 300), (50, 300), (48, 305), (28, 305)], "p")          # ledge
-fill([(36, 290), (40, 290), (40, 300), (36, 300)], "y")          # wax
-for (x, y), c in {(38, 288): "Z", (38, 287): "Y", (37, 289): "O", (38, 289): "Y", (39, 289): "O",
-                  (38, 286): "Y", (38, 285): "Z"}.items():
-    setp(x, y, c)
+if TIER == "burrow":
+    # ---- 8. One candle on a dirt ledge in the left wall (the Burrow's only light) ----
+    fill([(26, 300), (50, 300), (48, 305), (28, 305)], "p")          # ledge
+    fill([(36, 290), (40, 290), (40, 300), (36, 300)], "y")          # wax
+    for (x, y), c in {(38, 288): "Z", (38, 287): "Y", (37, 289): "O", (38, 289): "Y", (39, 289): "O",
+                      (38, 286): "Y", (38, 285): "Z"}.items():
+        setp(x, y, c)
+
+
+def plank_door(iron):
+    # Vertical planks filling the root arch; the Lair's door adds iron bands and rivets.
+    for (x, y) in [(x, y) for y in range(104, 135) for x in range(104, 127) if inside(door, x, y)]:
+        seam = (x - 104) % 5 == 0
+        setp(x, y, "e" if seam else "W" if (x - 104) % 5 == 1 else "R")
+    if iron:
+        for by in (112, 125):
+            for x in range(103, 128):
+                if inside(door, x, by) or inside(door, x, by + 1):
+                    setp(x, by, "w" if x % 6 == 2 else "i")
+                    setp(x, by + 1, "i" if x % 6 != 2 else "w")
+        setp(122, 119, "Z")  # a little iron ring pull, catching the light
+        setp(123, 119, "i")
+
+
+def shelf(x0, x1, y):
+    # A shelf carved from a root running along the wall, with a little root bracket under it.
+    root([(x0, y), (x1, y)], 4, 4)
+    root([(x0 + 3, y + 2), (x0 + 6, y + 8)], 2.4, 1.6)
+    root([(x1 - 3, y + 2), (x1 - 6, y + 8)], 2.4, 1.6)
+
+
+if TIER == "hideout":
+    plank_door(iron=False)
+    shelf(26, 70, 252)
+    shelf(156, 202, 236)
+    # A woven rug lying on the floor (side view, so a low strip): dusky body, a pink and
+    # amber woven band along the middle, dark edges, and a fringe at each end.
+    ry0, ry1 = DEN_FLOOR - 9, DEN_FLOOR - 4
+    for y in range(ry0, ry1 + 1):
+        for x in range(56, 172):
+            if y in (ry0, ry1):
+                c = "r"
+            elif y == ry0 + 2 or y == ry0 + 3:
+                c = "Z" if (x // 3) % 4 == 0 else "k" if (x // 3) % 4 == 2 else "p"
+            else:
+                c = "p" if y == ry0 + 1 else "q"
+            setp(x, y, c)
+    for x in list(range(52, 56)) + list(range(172, 176)):
+        for y in range(ry0 + 1, ry1, 2):
+            setp(x, y, "a")
+
+if TIER == "lair":
+    plank_door(iron=True)
+    # Carved stone pillars on both sides, with a capital and a base; iron rings bolted on.
+    for px in (30, 181):
+        for y in range(206, DEN_FLOOR - 6):
+            for x in range(px, px + 15):
+                if (x, y) in hollow or x in (px, px + 14):
+                    edge = x - px
+                    groove = edge in (4, 10)
+                    c = "e" if edge in (0, 14) else "U" if groove else "S" if edge < 4 else "T"
+                    if y < 214 or y > DEN_FLOOR - 15:      # capital and base blocks, wider
+                        c = "S" if y in (206, DEN_FLOOR - 14) else "T" if edge < 12 else "U"
+                    setp(x, y, c)
+        for ry in (252, 316):                              # iron rings
+            for dx, dy in ((5, 0), (6, 0), (7, 0), (8, 0), (9, 0), (5, 1), (9, 1), (5, 2), (9, 2), (6, 3), (7, 3), (8, 3)):
+                setp(px + dx, ry + dy, "w" if dy == 0 else "i")
+    # Banners hanging from iron rods near the ceiling, with a pointed tail and an amber emblem.
+    for bx in (60, 148):
+        for x in range(bx - 2, bx + 20):
+            setp(x, 214, "i")
+        for y in range(215, 268):
+            for x in range(bx, bx + 17):
+                tail = y > 258 and abs(x - (bx + 8)) > (268 - y)
+                if not tail:
+                    setp(x, y, "e" if x in (bx, bx + 16) else "p" if x < bx + 6 else "q")
+        for dx, dy in ((8, 228), (7, 229), (9, 229), (6, 230), (10, 230), (8, 231), (8, 232), (7, 236), (8, 236),
+                       (9, 236), (8, 237), (8, 238)):
+            setp(bx + dx, dy, "Z")
+    # A trophy mount on the back wall: a wooden shield-plaque with a horned skull.
+    fill([(100, 222), (126, 222), (126, 238), (113, 248), (100, 238)], "R")
+    fill([(101, 223), (125, 223), (125, 237), (113, 246), (101, 237)], "W")
+    fill([(108, 228), (118, 228), (119, 236), (113, 241), (107, 236)], "b")
+    root([(108, 229), (102, 222), (100, 216)], 2.6, 1.2)   # horns (drawn like curved roots, then recoloured)
+    root([(118, 229), (124, 222), (126, 216)], 2.6, 1.2)
+    for y in range(214, 232):
+        for x in range(98, 128):
+            if getp(x, y) in ("W", "R") and (y < 223 or not inside([(100, 222), (126, 222), (126, 238), (113, 248), (100, 238)], x, y)):
+                setp(x, y, "b" if getp(x, y) == "W" else "a")
+    for (x, y) in ((110, 232), (111, 232), (115, 232), (116, 232)):
+        setp(x, y, "e")                                    # eye sockets
+    # Rune glyphs carved into the stone lining, glowing amber.
+    for gx, gy in ((22, 280), (200, 268), (60, 196), (166, 196), (24, 340), (202, 334)):
+        for dx, dy in ((0, 0), (0, 1), (0, 2), (0, 3), (-1, 1), (1, 1), (-1, 3), (1, 3)):
+            setp(gx + dx, gy + dy, "Z" if dy % 2 else "O")
 
 # Where the buildables and the crack go (ART_BRIEF §6 / BUILD_SPEC §7), for the game to read.
 SPOTS = {
@@ -240,3 +367,56 @@ json.dump({"width": W, "height": H, "fps": 1, "palette": PAL, "dye_zones": {}, "
            "spots": SPOTS, "animations": {TIER: [["".join(r) for r in grid]]}},
           open(f"art/source/home/den_{TIER}.json", "w"))
 print(f"den_{TIER}: {W}x{H}")
+
+
+# ---- SKB-CRACK: the Cave Delve entrance in the deep roots (its own 48x24 sprite) ----
+# "hidden": a faint seam in the stone; "open" (4-frame loop): a jagged split with a glow
+# pulsing up from below. It sits on the "crack" spot, centred. Same in every den tier.
+def crack():
+    CW, CH = 48, 24
+    cpal = {"e": "#17151c", "d": "#23212b", "U": "#2a3448", "T": "#3b4a63",
+            "O": "#ff8a3d", "Z": "#ffb35c", "Y": "#ffd08a", "y": "#ffc8a8"}
+    path = [(2, 12), (8, 10), (12, 13), (18, 9), (23, 12), (27, 8), (32, 12), (37, 10), (41, 13), (46, 11)]
+
+    def line_pts():
+        pts = []
+        for (x0, y0), (x1, y1) in zip(path, path[1:]):
+            n = max(abs(x1 - x0), abs(y1 - y0))
+            pts += [(round(x0 + (x1 - x0) * k / n), round(y0 + (y1 - y0) * k / n)) for k in range(n)]
+        return pts
+
+    pts = line_pts()
+    hidden = {}
+    for (x, y) in pts:  # a thin dark seam with a slightly lifted stone edge above it
+        hidden[(x, y)] = "e"
+        hidden[(x, y - 1)] = "T"
+    frames = [hidden]
+    opened = []
+    for f in range(4):
+        g = {}
+        for k, (x, y) in enumerate(pts):
+            # A dark jagged split, widest in the middle; only a thin glow deep inside it.
+            half = 2 if 10 < x < 38 else 1 if 4 < x < 44 else 0
+            pulse = (f + k // 6) % 4
+            for dy in range(-half - 1, half + 2):
+                if abs(dy) == half + 1:
+                    c = "T" if dy < 0 else "U"                  # cracked stone lip, lit above
+                elif dy == 0 and half:
+                    c = "Z" if pulse in (0, 1) else "O"         # the glow line, slowly pulsing
+                elif abs(dy) == 1 and half == 2 and pulse == 0:
+                    c = "O"                                     # it swells a little at its brightest
+                else:
+                    c = "e" if abs(dy) == half else "d"
+                g[(x, y + dy)] = c
+            if k % 11 == 3 and 10 < x < 38 and f % 2 == 0:      # an occasional ember drifting up
+                g[(x, y - half - 3 - (f // 2))] = "O"
+        opened.append(g)
+    rows = lambda g: ["".join(g.get((x, y), ".") for x in range(CW)) for y in range(CH)]
+    json.dump({"width": CW, "height": CH, "fps": 6, "palette": cpal, "dye_zones": {}, "attach": {},
+               "anchor": [CW // 2, CH // 2],
+               "animations": {"hidden": [rows(frames[0])], "open": [rows(g) for g in opened]}},
+              open("art/source/home/crack.json", "w"))
+
+
+if TIER == "burrow":
+    crack()
