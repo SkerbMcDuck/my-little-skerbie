@@ -1,17 +1,23 @@
-# Builds the Speed kid Skerbie (48x48) animations as pixel grids -> JSON.
-# Look approved by George (2026-11-21): the approved baby's angular style
-# (straight-edged polygons, flat faceted shading, narrowed glare, one fang),
-# crouched and half-upright on bent hind legs, forepaws held up. Speed kid:
-# sleek and lean, swept-back ears, a long thin tail, a tattered scarf.
+# Builds the three kid Skerbie forms (48x48), all 37 animations each, as pixel grids -> JSON.
+# Usage: python tools/build_kid.py speed|strength|mind   (default: speed)
+#        python tools/render.py art/source/skerbie/kid_<form>.json --out art/out/skerbie/kid_<form>
 #
-# Every frame comes from frame(...), a small rig: each limb vertex belongs to a
-# joint (hip/knee/heel/toe, shoulder/elbow/paw) and moves with it, so all the
-# animations share one body. With no pose set, idle and blink come out exactly
-# as approved. Effects and gear (the small hammer, weapons) are separate
-# sprites that snap to the attach points recorded per frame.
-# Run: python tools/build_kid_speed.py, then
-#      python tools/render.py art/source/skerbie/kid_speed.json --out art/out/skerbie/kid_speed
-import json, math
+# Style approved by George (2026-11-21): the baby's angular look (straight-edged
+# polygons, flat faceted shading, narrowed glare, one fang, one eye in side view),
+# crouched and half-upright on bent hind legs, forepaws held up.
+#   speed:    sleek and lean, swept-back ears, long thin tail, tattered slate scarf.
+#   strength: stockier, thick grey mane on the shoulders (accent zone), wrapped forepaws.
+#   mind:     extra-tall upright ears with glowing tips, faint rune marks (accent zone),
+#             hovers slightly off the ground.
+#
+# Every frame comes from frame(...), a small rig: leg vertices belong to joints
+# (hip/knee/heel/toe) and arms are built shoulder -> elbow -> paw, so all
+# animations and all three forms share one skeleton. Effects and gear (the small
+# hammer, weapons, hats) are separate sprites that snap to per-frame attach points.
+import json, math, sys
+
+FORM = sys.argv[1] if len(sys.argv) > 1 else "speed"
+assert FORM in ("speed", "strength", "mind"), "form must be speed, strength or mind"
 
 W = H = 48
 PAL = {
@@ -20,14 +26,17 @@ PAL = {
     "5": "#8a8494", "6": "#615b6b", "7": "#433e4c", "8": "#2c2833",   # accent fur
     "e": "#ff9a8a", "E": "#ff3d3d", "f": "#b81f2e", "F": "#6e0f1c",   # eye glow
     "w": "#c9cfd6",                                                   # fang (never dyed)
-    "j": "#4d5e7a", "k": "#3b4a63", "l": "#2a3448",                   # scarf, slate blue (never dyed)
 }
+if FORM == "speed":
+    PAL.update({"j": "#4d5e7a", "k": "#3b4a63", "l": "#2a3448"})      # scarf, slate blue (never dyed)
+if FORM == "strength":
+    PAL.update({"q": "#bfae8c", "r": "#a8945e", "u": "#8b7a4a"})      # paw wraps, worn cloth (never dyed)
 LX, LY = -0.6, -0.8  # light from top-left
 N4 = ((1, 0), (-1, 0), (0, 1), (0, -1))
-FUR, ACC, SCARF = "1234", "5678", "jkll"
+FUR, ACC, SCARF, WRAP, GLOW = "1234", "5678", "jkll", "qruu", "eEfF"
 
-# Limbs: (x, y, joint). Hips/shoulders ride the body; the rest move with the pose.
-LEG = [  # near hind leg; the far leg is the same shape shifted (see FAR_LEG_D)
+# Limbs: (x, y, joint). Hips ride the body; the rest move with the pose.
+LEG = [  # near hind leg
     [(11, 28, "hip"), (22, 27, "hip"), (26, 37, "knee"), (20, 40, "knee"), (13, 35, "knee")],    # thigh
     [(20, 34.5, "knee"), (26, 37, "knee"), (18.5, 43.5, "heel"), (15, 42, "heel")],              # shin
     [(14, 41.5, "heel"), (18, 41, "heel"), (27, 45.5, "toe"), (26.5, 46.5, "toe"), (16.5, 46.5, "heel")],  # foot
@@ -37,6 +46,23 @@ FAR_LEG = [
     [(25, 34.5, "knee"), (30, 37, "knee"), (23, 43.5, "heel"), (19.5, 42, "heel")],
     [(18.5, 41.5, "heel"), (22.5, 41, "heel"), (31, 45.5, "toe"), (30.5, 46.5, "toe"), (21, 46.5, "heel")],
 ]
+if FORM == "strength":  # heavier thighs and shins
+    LEG = [
+        [(9, 28, "hip"), (22, 26.5, "hip"), (27.5, 37, "knee"), (20, 41, "knee"), (12, 36, "knee")],
+        [(19, 34, "knee"), (27.5, 37, "knee"), (19.5, 44, "heel"), (14.5, 42, "heel")],
+        [(13, 41, "heel"), (18.5, 40.5, "heel"), (28.5, 45.5, "toe"), (28, 46.5, "toe"), (15.5, 46.5, "heel")],
+    ]
+    FAR_LEG = [
+        [(16, 28, "hip"), (28, 26.5, "hip"), (32, 36, "knee"), (25, 40, "knee"), (18, 35, "knee")],
+        [(24.5, 34, "knee"), (32, 37, "knee"), (24, 44, "heel"), (19.5, 42, "heel")],
+        [(18.5, 41, "heel"), (23.5, 40.5, "heel"), (33, 45.5, "toe"), (32.5, 46.5, "toe"), (21, 46.5, "heel")],
+    ]
+# Arm thickness (upper, elbow, wrist) and paw size per form.
+ARM_W = {"speed": (5, 3.8, 3.2, 4.6, 3.6), "strength": (6.4, 5, 4.4, 5.8, 4.8), "mind": (4.6, 3.6, 3, 4.2, 3.4)}[FORM]
+# Mind kid hovers: hips and body sit a little lower so his tall ears fit, feet hang off the ground.
+BASE = {"mind": dict(crouch=5, leg={"knee": (1, -2), "heel": (3, -4), "toe": (2, -5)},
+                     fleg={"knee": (1, -2), "heel": (3, -4), "toe": (2, -5)})}.get(FORM, {})
+C0 = BASE.get("crouch", 0)  # how much lower the body sits by default
 # Arms are built from real joints: shoulder -> elbow -> paw, each segment a solid
 # tapered piece, so big swings (hammer overhead, uppercuts) keep their shape.
 ARM_REST = {"sh": (27.5, 17.5), "el": (29, 24.5), "paw": (35.5, 28.5)}
@@ -106,12 +132,24 @@ def frame(bob=0, crouch=0, lean=0, head=(0, 0), ear=0, tail=0, scarf=0, eyes="op
     off: (root_dx, dy). root_dx is not baked in; the game slides the sprite by it."""
     g, layer, order = {}, {}, {}
     z = [0]
+    # Form base pose (the Mind kid's hover), added under every animation's pose.
+    crouch = min(crouch + C0, max(crouch, 9))  # the hover stance never sinks him through the floor
+
+    def based(pose, key):
+        merged = dict(BASE.get(key, {}))
+        for j, v in (pose or {}).items():
+            merged[j] = add(merged[j], v) if j in merged and j in ("knee", "heel", "toe") else v
+        return merged
+
+    leg, fleg = based(leg, "leg"), based(fleg, "fleg")
 
     def paint(poly, part, ramp=FUR, dark=0, acc=None):
+        # acc(p) -> True for accent fur, or a ramp string (e.g. GLOW), or False.
         z[0] += 1
         for p, n in poly_pts(poly).items():
             t = tone(n, dark)
-            g[p] = (ACC if acc and acc(p) else ramp)[t]
+            r = acc(p) if acc else False
+            g[p] = (ACC if r is True else r if r else ramp)[t]
             layer[p], order[p] = part, z[0]
 
     by = bob + crouch                  # whole body drop
@@ -139,6 +177,11 @@ def frame(bob=0, crouch=0, lean=0, head=(0, 0), ear=0, tail=0, scarf=0, eyes="op
         sh = add(rest["sh"], up)
         el = pose["el_at"] if "el_at" in pose else add(add(rest["el"], up), pose.get("el", (0, 0)))
         pw = pose["paw_at"] if "paw_at" in pose else add(add(rest["paw"], up), pose.get("paw", (0, 0)))
+        floor = 42 - off[1]  # keep the paw (and its tip) above the ground line and inside the frame
+        if pw[1] > floor:
+            pw = (pw[0] + 1.5, floor)
+        if el[1] > floor:
+            el = (el[0], floor)
         return sh, el, pw
 
     def arm_paint(rest, pose, part, dark=0):
@@ -146,46 +189,96 @@ def frame(bob=0, crouch=0, lean=0, head=(0, 0), ear=0, tail=0, scarf=0, eyes="op
         dx, dy = pw[0] - el[0], pw[1] - el[1]
         ln = math.hypot(dx, dy) or 1
         tip = (pw[0] + dx / ln * 2.5, pw[1] + dy / ln * 2.5)
-        paint(seg(sh, el, 5, 3.8), part, dark=dark)     # upper arm
-        paint(seg(el, pw, 3.8, 3.2), part, dark=dark)   # forearm
-        paint(seg(pw, tip, 4.6, 3.6, 0.4), part, dark=dark)  # paw
+        wu, we, ww, pa, pb = ARM_W
+        paint(seg(sh, el, wu, we), part, dark=dark)     # upper arm
+        paint(seg(el, pw, we, ww), part, dark=dark)     # forearm
+        if FORM == "strength":  # cloth wraps over the wrist and paw
+            mid = (el[0] + dx * 0.55, el[1] + dy * 0.55)
+            paint(seg(mid, pw, ww + 0.4, ww + 0.4, 0.2), part, WRAP, dark=dark)
+            paint(seg(pw, tip, pa, pb, 0.4), part, WRAP, dark=dark)
+        else:
+            paint(seg(pw, tip, pa, pb, 0.4), part, dark=dark)  # paw
 
     def upper(poly):
         return mv(poly, *up)
 
+    # Ears per form: (base-back, base-front, tip) and the inner-ear accent triangle.
+    if FORM == "mind":  # extra tall and nearly upright, tips glowing
+        # The tips reach the top edge of the frame (the body sits 2 px lower to make room).
+        top = 0.5 - C0  # tip height relative to the head
+        ear_n = [(28.5, 9), (35.5, 6.5), (30.5 - e * 2, top + e * 0.6 + fy)]
+        ear_f = [(27.5, 10), (34, 7.5), (26 - e * 2, top + 0.5 + e * 0.6 + fy)]
+        # Glow on the last few px of each ear, measured from its tip, so it stays a tip
+        # even when the ear sweeps back.
+        tn, tf = mv([ear_n[2]], hx, hy)[0], mv([ear_f[2]], hx, hy)[0]
+        near_tip = lambda p, t_, r: math.hypot(p[0] + .5 - t_[0], p[1] + .5 - t_[1]) <= r
+        ear_acc = lambda p: inside(mv([(30, 8), (33.5, 7), (31 - e * 2, top + 5 + e * 0.6 + fy)], hx, hy), *p)
+        far_acc = None
+        glow_tips = [(tn, "ear", 0), (tf, "far", 1)]  # painted after the outline, see below
+    elif FORM == "strength":  # shorter, thicker, less swept
+        ear_n = [(27.5, 9), (36, 6), (26 + e, -0.5 + e * 0.5 + fy)]
+        ear_f = [(27.5, 9.5), (35, 7), (23 + e, 0 + e * 0.5 + fy)]
+        ear_acc = lambda p: inside(mv([(29.5, 8), (33.5, 6.8), (27.5 + e, 2.5 + e * 0.4 + fy)], hx, hy), *p)
+        far_acc = None
+    else:  # speed: long, wide at the base, swept far back
+        ear_n = [(28, 8.5), (36, 5), (24 + e, 0 + e * 0.5 + fy)]
+        ear_f = [(28, 9), (35, 6.5), (21.5 + e, 0.5 + e * 0.5 + fy)]
+        ear_acc = lambda p: inside(mv([(29.8, 7.4), (33.5, 6), (26 + e, 2.5 + e * 0.4 + fy)], hx, hy), *p)
+        far_acc = None
+
     # Far side, one shade darker.
-    paint(mv([(28, 9), (35, 6.5), (21.5 + e, 0.5 + e * 0.5 + fy)], hx, hy), "far", dark=1)
+    paint(mv(ear_f, hx, hy), "far", dark=1, acc=far_acc)
     arm_paint(FAR_ARM_REST, farm, "far", dark=1)
     limb(FAR_LEG, fleg, "far", dark=1)
-    # Long thin tail in one piece: back from the rump, then curling up.
     t = tail
-    paint(mv([(14, 29), (16, 33.5), (9, 36), (4, 33), (1.5 + t, 26), (1 + t, 19), (3.5 + t, 20),
-              (4.5 + t * 0.5, 27), (7, 31.5), (11, 31.5)], 0, by), "tail", acc=lambda p: p[1] <= 23 + by)
-    # Tattered scarf streaming back from the neck.
-    s = scarf
-    paint(upper([(22, 14), (25, 18), (18, 20), (12, 22 + s), (13, 19.5 + s), (7, 20 + s),
-                 (10, 17.5 + s * 0.5), (5, 16 + s * 0.5), (13, 14.5)]), "scarf", SCARF)
+    if FORM == "strength":  # short, thick tail with a spiked tip
+        paint(mv([(14, 28), (16.5, 34), (10, 37.5), (5, 36), (1.5 + t, 31.5), (3 + t, 29), (6, 32),
+                  (10, 31.5)], 0, by), "tail", acc=lambda p: p[0] <= 5 + t)
+    else:  # long thin tail in one piece: back from the rump, then curling up
+        paint(mv([(14, 29), (16, 33.5), (9, 36), (4, 33), (1.5 + t, 26), (1 + t, 19), (3.5 + t, 20),
+                  (4.5 + t * 0.5, 27), (7, 31.5), (11, 31.5)], 0, by), "tail", acc=lambda p: p[1] <= 23 + by)
+    if FORM == "speed":  # tattered scarf streaming back from the neck
+        s = scarf
+        paint(upper([(22, 14), (25, 18), (18, 20), (12, 22 + s), (13, 19.5 + s), (7, 20 + s),
+                     (10, 17.5 + s * 0.5), (5, 16 + s * 0.5), (13, 14.5)]), "scarf", SCARF)
     # Torso: the hips stay with the legs, the chest and shoulders take the lean.
-    torso = [(13, 30, 0), (16, 22, 1), (21, 16, 1), (29, 14, 1), (33, 18, 1), (32, 25, 1), (27, 31, 0),
-             (23, 36, 0), (14, 36, 0)]
+    if FORM == "strength":  # deep, broad chest
+        torso = [(10, 30, 0), (12, 21, 1), (18, 14, 1), (29, 12, 1), (35.5, 17, 1), (35, 26, 1), (29, 32, 0),
+                 (25, 37, 0), (12, 37, 0)]
+        chest = upper([(31, 15), (35.5, 17), (35, 26), (30, 31), (29.5, 21)])
+    else:
+        torso = [(13, 30, 0), (16, 22, 1), (21, 16, 1), (29, 14, 1), (33, 18, 1), (32, 25, 1), (27, 31, 0),
+                 (23, 36, 0), (14, 36, 0)]
+        chest = upper([(30, 16), (33, 18), (32, 25), (28, 30), (27.5, 21)])
     tp = [(x + lean * k, y + by) for x, y, k in torso]
-    chest = upper([(30, 16), (33, 18), (32, 25), (28, 30), (27.5, 21)])
     paint(tp, "body", acc=lambda p: inside(chest, *p))
-    # Two hackle spikes on the upper back.
-    paint(upper([(18, 20), (18, 13.5), (23, 17)]), "body", acc=lambda p: True)
-    paint(mv([(14, 25), (12, 19), (18, 22)], lean * 0.5, by), "body", acc=lambda p: True)
+    if FORM != "strength":  # two hackle spikes on the upper back (the mane replaces them)
+        paint(upper([(18, 20), (18, 13.5), (23, 17)]), "body", acc=lambda p: True)
+        paint(mv([(14, 25), (12, 19), (18, 22)], lean * 0.5, by), "body", acc=lambda p: True)
     # Near hind leg: big thigh, shin back to a raised heel, long foot forward.
     limb(LEG, leg, "leg")
-    # Scarf wrap around the neck.
-    paint(upper([(22, 13.5), (30, 11.5), (32, 16), (24, 18.5)]), "wrap", SCARF)
+    if FORM == "speed":  # scarf wrap around the neck
+        paint(upper([(22, 13.5), (30, 11.5), (32, 16), (24, 18.5)]), "wrap", SCARF)
+    if FORM == "mind":  # a plain fur neck joining head and chest
+        paint(upper([(23, 12), (30, 10), (32.5, 16.5), (25, 19)]), "body")
+    if FORM == "strength":  # thick, shaggy grey mane over the shoulders and neck
+        paint(upper([(13, 21), (10, 17), (15, 16.5), (13, 12), (18, 13.5), (19, 8.5), (23, 11.5), (26, 7.5),
+                     (28, 11), (32, 9.5), (31.5, 13.5), (35, 14), (33, 18), (36, 20.5), (31, 21), (27, 23.5),
+                     (24, 21.5), (19, 24), (17, 21.5)]), "mane", acc=lambda p: True)
     # Head: the baby's wedge, longer and sleeker.
     paint(mv([(26, 10), (28.5, 5), (34, 3), (39, 5), (46.5, 10), (45, 13), (38, 15.5), (30, 15.5), (27, 13.5)], hx, hy),
           "head", acc=lambda p: p[1] >= 14 + hy and 31 + hx <= p[0] <= 41 + hx)
-    # Near ear: long, wide at the base, swept far back.
-    paint(mv([(28, 8.5), (36, 5), (24 + e, 0 + e * 0.5 + fy)], hx, hy), "ear",
-          acc=lambda p: inside(mv([(29.8, 7.4), (33.5, 6), (26 + e, 2.5 + e * 0.4 + fy)], hx, hy), *p))
+    paint(mv(ear_n, hx, hy), "ear", acc=ear_acc)
     # Near arm, outlined so it reads over his dark body and head.
     arm_paint(ARM_REST, arm, "arm")
+    if FORM == "mind":  # faint rune marks in the accent zone: chest, belly, thigh
+        runes = [(*upper([(24, 19)])[0],), (*upper([(25, 18)])[0],), (*upper([(26, 19)])[0],), (*upper([(25, 20)])[0],),
+                 (*upper([(25, 21)])[0],), (21, 27 + by), (22, 26 + by), (23, 27 + by), (22, 28 + by),
+                 (15, 31 + by), (16, 30 + by), (17, 31 + by), (16, 32 + by), (18, 30 + by)]
+        for x, y in runes:
+            p = (round(x), round(y))
+            if layer.get(p) in ("body", "leg"):
+                g[p] = ACC[1]
 
     # Seams: where a part sits on top of a different part, darken its edge pixel.
     for (x, y), part in list(layer.items()):
@@ -194,7 +287,8 @@ def frame(bob=0, crouch=0, lean=0, head=(0, 0), ear=0, tail=0, scarf=0, eyes="op
         for dx, dy in N4:
             q = (x + dx, y + dy)
             if q in layer and layer[q] != part and order[q] < order[(x, y)] and (layer[q] != "far" or part == "arm"):
-                g[(x, y)] = "o" if part == "arm" else SCARF[3] if part in ("scarf", "wrap") else FUR[3]
+                g[(x, y)] = ("o" if part == "arm" else SCARF[3] if part in ("scarf", "wrap")
+                             else ACC[3] if part == "mane" else FUR[3])
                 break
     for p in [p for p in g if not any((p[0] + dx, p[1] + dy) in g for dx, dy in N4)]:
         del g[p]
@@ -202,6 +296,14 @@ def frame(bob=0, crouch=0, lean=0, head=(0, 0), ear=0, tail=0, scarf=0, eyes="op
     for (x, y) in filled:
         if any((x + dx, y + dy) not in filled for dx, dy in N4):
             g[(x, y)] = "o"
+
+    if FORM == "mind":  # glowing ear tips: brightest at the tip, fading down the ear, no outline
+        for tip, part, dim in glow_tips:
+            for p, pt in layer.items():
+                if pt == part and p in g:
+                    d = math.hypot(p[0] + .5 - tip[0], p[1] + .5 - tip[1])
+                    if d <= 4:
+                        g[p] = GLOW[min(3, int(d / 1.4) + dim)]
 
     # Eyes (true side view: the near eye only) and mouth.
     for j, row in enumerate(EYES[eyes]):
@@ -384,7 +486,7 @@ anim("fall", [
           farm={"el_at": (33, 10), "paw_at": (38, 4)}, leg={"heel": (2, -2), "toe": (3, -2)}, scarf=-2, tail=-3),
     frame(off=(0, 1), lean=-2, eyes="wide", mouth="open", ear=3, arm={"el": (-2, -5), "paw": (-4, -9)},
           farm={"el": (3, -4), "paw": (6, -7)}, scarf=-3, tail=-2),
-    frame(off=(0, 2), crouch=7, lean=4, head=(0, 3), eyes="ko", ear=3, arm={"el": (0, 4), "paw": (-2, 7)}),
+    frame(crouch=7, lean=4, head=(0, 3), eyes="ko", ear=3, arm={"el": (0, 4), "paw": (-2, 7)}),
 ])
 # Block Party: swings the small hammer (hand point + aim angle) toward each direction.
 anim("swing_right", [
@@ -463,5 +565,5 @@ data = {
     "attach": {k: [a for _, a in v] for k, v in A.items()},
     "animations": {k: [r for r, _ in v] for k, v in A.items()},
 }
-json.dump(data, open("art/source/skerbie/kid_speed.json", "w"), indent=1)
+json.dump(data, open(f"art/source/skerbie/kid_{FORM}.json", "w"), indent=1)
 print("animations:", ", ".join(f"{k}[{len(v)}]" for k, v in A.items()))
