@@ -1,11 +1,11 @@
 # Handoff: My Little Skerbie
 
-_Last updated 2026-11-21, end of the planning chat._
+_Last updated 2026-11-21, after George approved the baby look._
 
 ## Where things stand
 - **Design is finished.** It was planned over two long Q&A sessions with George (one for the game, one for the art). Every v1 decision is in `BUILD_SPEC.md` (game) and `ART_BRIEF.md` (art). There are no open questions.
 - **Art pipeline is set up:** the project skill `.claude/skills/pixel-art` (house style built in), the renderer `tools/render.py`, and a generator example `tools/build_baby.py`.
-- **First art test exists:** baby Skerbie idle [4] + blink [2] at `art/out/skerbie/` (`baby_skerbie_test.gif`, sheet, frames.json). Its source grid is `art/source/skerbie/baby.json`. **George hasn't approved the look yet.** Get his feedback on it first.
+- **Baby look approved (2026-11-21):** baby Skerbie idle [4] + blink [2] at `art/out/skerbie/` (`baby_skerbie_test.gif`, sheet, frames.json), source grid `art/source/skerbie/baby.json`, built by `tools/build_baby.py`. George asked for it **more angular and aggressive** than the first round version: straight-edged shapes with flat faceted shading, a low pounce-ready crouch, a wedge head with one fang, tall sharp ears, raised accent-fur hackles, narrowed glaring eyes and a spiked stub tail. `ART_BRIEF.md` §4 was updated to match. **This style is locked for everything else.**
 - **No game code exists yet.** The repo is empty apart from these docs and art files.
 
 ## George's key decisions (quick reference; the spec has the details)
@@ -19,7 +19,7 @@ _Last updated 2026-11-21, end of the planning chat._
 - **Art first:** George wants the real art made **before** the game build starts.
 
 ## What to do next (in order)
-1. **Show George the baby test** and adjust it until he approves the look. That locks the style for everything else.
+1. ~~**Show George the baby test** and adjust it until he approves the look.~~ Done: approved 2026-11-21 (angular and aggressive).
 2. **Make the full art order** in `ART_BRIEF.md` with the pixel-art skill. Start with the rest of the Skerbie bodies, then the home, enemies, tavern, game scenes, Jungle Run, the Delve, effects, items and UI. Check in with George after each Skerbie stage.
 3. **Build Milestone 1** (core loop), as listed in `BUILD_SPEC.md` §16, including CI for both the web build and the IPA. George tests it on his iPhone 17 (Pages) and on the X (IPA).
 4. **Milestone 2** (away loop), then **Milestone 3** (Delve and adult), each one tested on the X before moving on.

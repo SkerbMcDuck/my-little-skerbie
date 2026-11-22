@@ -71,7 +71,7 @@ Reserved palette slot characters (use these in every Skerbie grid): main fur `1 
 | ID | Form | Size | Description |
 |---|---|---|---|
 | SKB-EGG | Egg | 24×32 | A smooth charcoal-black shell with faint red ember-glow cracks. Smoke wisps leak from the cracks as it nears hatching. |
-| SKB-BABY | Baby | 32×32 | A small, round **quadruped** with an oversized head and big ears, soft black fuzz, huge smoky red eyes and a stub tail. Clumsy, adorable, a little spooky. |
+| SKB-BABY | Baby | 32×32 | A small, **angular and aggressive** **quadruped** in a low, ready-to-pounce crouch: an oversized wedge-shaped head with a long pointed snout and one small fang, tall sharp swept-back ears, a sawtooth ridge of raised hackles (accent zone) along the back, narrowed glaring red eyes and a short spiked stub tail. Small and fierce, a little spooky. (Changed from "round, clumsy, adorable" by George, 2026-11-21.) |
 | SKB-KID-SPD | Speed kid | 48×48 | Sleek and lean, crouched half-upright. Swept-back ears, a long thin tail, a tattered scarf that trails behind him. |
 | SKB-KID-STR | Strength kid | 48×48 | Stockier, crouched half-upright. A thick grey fur mane on the shoulders (accent zone), wrapped forepaws. |
 | SKB-KID-MND | Mind kid | 48×48 | Extra-tall ears with smoky glowing tips, faint rune markings (accent zone). Hovers slightly off the ground. |
