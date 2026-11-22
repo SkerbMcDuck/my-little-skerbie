@@ -37,25 +37,29 @@
           "mouth": [
             27,
             17
-          ]
+          ],
+          "root_dx": 0
         },
         {
           "mouth": [
             27,
             16
-          ]
+          ],
+          "root_dx": 0
         },
         {
           "mouth": [
             27,
             16
-          ]
+          ],
+          "root_dx": 0
         },
         {
           "mouth": [
             27,
             17
-          ]
+          ],
+          "root_dx": 0
         }
       ]
     },
@@ -67,13 +71,15 @@
           "mouth": [
             27,
             17
-          ]
+          ],
+          "root_dx": 0
         },
         {
           "mouth": [
             27,
             17
-          ]
+          ],
+          "root_dx": 0
         }
       ]
     },
@@ -85,37 +91,43 @@
           "mouth": [
             27,
             17
-          ]
+          ],
+          "root_dx": 0
         },
         {
           "mouth": [
             27,
             16
-          ]
+          ],
+          "root_dx": 0
         },
         {
           "mouth": [
             27,
             17
-          ]
+          ],
+          "root_dx": 0
         },
         {
           "mouth": [
             27,
             17
-          ]
+          ],
+          "root_dx": 0
         },
         {
           "mouth": [
             27,
             16
-          ]
+          ],
+          "root_dx": 0
         },
         {
           "mouth": [
             27,
             17
-          ]
+          ],
+          "root_dx": 0
         }
       ]
     },
@@ -127,25 +139,29 @@
           "mouth": [
             27,
             18
-          ]
+          ],
+          "root_dx": 0
         },
         {
           "mouth": [
             27,
             15
-          ]
+          ],
+          "root_dx": 0
         },
         {
           "mouth": [
             27,
             14
-          ]
+          ],
+          "root_dx": 0
         },
         {
           "mouth": [
             27,
             16
-          ]
+          ],
+          "root_dx": 0
         }
       ]
     },
@@ -157,25 +173,29 @@
           "mouth": [
             28,
             19
-          ]
+          ],
+          "root_dx": 0
         },
         {
           "mouth": [
-            29,
+            28,
             22
-          ]
+          ],
+          "root_dx": 0
         },
         {
           "mouth": [
-            29,
+            28,
             23
-          ]
+          ],
+          "root_dx": 0
         },
         {
           "mouth": [
-            29,
+            28,
             22
-          ]
+          ],
+          "root_dx": 0
         }
       ]
     },
@@ -187,13 +207,15 @@
           "mouth": [
             27,
             24
-          ]
+          ],
+          "root_dx": 0
         },
         {
           "mouth": [
             27,
             23
-          ]
+          ],
+          "root_dx": 0
         }
       ]
     },
@@ -205,13 +227,15 @@
           "mouth": [
             27,
             21
-          ]
+          ],
+          "root_dx": 0
         },
         {
           "mouth": [
             27,
             23
-          ]
+          ],
+          "root_dx": 0
         }
       ]
     },
@@ -223,19 +247,22 @@
           "mouth": [
             26,
             16
-          ]
+          ],
+          "root_dx": 0
         },
         {
           "mouth": [
             26,
             14
-          ]
+          ],
+          "root_dx": 0
         },
         {
           "mouth": [
             26,
             16
-          ]
+          ],
+          "root_dx": 0
         }
       ]
     },
@@ -247,19 +274,22 @@
           "mouth": [
             26,
             19
-          ]
+          ],
+          "root_dx": 0
         },
         {
           "mouth": [
             27,
             23
-          ]
+          ],
+          "root_dx": 0
         },
         {
           "mouth": [
             28,
             27
-          ]
+          ],
+          "root_dx": 0
         }
       ]
     },
@@ -271,13 +301,15 @@
           "mouth": [
             28,
             27
-          ]
+          ],
+          "root_dx": 0
         },
         {
           "mouth": [
             28,
             27
-          ]
+          ],
+          "root_dx": 0
         }
       ]
     },
@@ -289,25 +321,29 @@
           "mouth": [
             28,
             18
-          ]
+          ],
+          "root_dx": 0
         },
         {
           "mouth": [
             28,
             19
-          ]
+          ],
+          "root_dx": 0
         },
         {
           "mouth": [
             28,
             20
-          ]
+          ],
+          "root_dx": 0
         },
         {
           "mouth": [
             28,
             18
-          ]
+          ],
+          "root_dx": 0
         }
       ]
     },
@@ -319,25 +355,29 @@
           "mouth": [
             27,
             15
-          ]
+          ],
+          "root_dx": 0
         },
         {
           "mouth": [
             27,
             14
-          ]
+          ],
+          "root_dx": 0
         },
         {
           "mouth": [
             27,
             15
-          ]
+          ],
+          "root_dx": 0
         },
         {
           "mouth": [
             27,
             14
-          ]
+          ],
+          "root_dx": 0
         }
       ]
     },
@@ -349,25 +389,29 @@
           "mouth": [
             27,
             18
-          ]
+          ],
+          "root_dx": 0
         },
         {
           "mouth": [
             27,
             14
-          ]
+          ],
+          "root_dx": 0
         },
         {
           "mouth": [
             27,
             13
-          ]
+          ],
+          "root_dx": 0
         },
         {
           "mouth": [
             27,
             16
-          ]
+          ],
+          "root_dx": 0
         }
       ]
     },
@@ -379,19 +423,727 @@
           "mouth": [
             27,
             20
-          ]
+          ],
+          "root_dx": 0
         },
         {
           "mouth": [
             28,
             11
-          ]
+          ],
+          "root_dx": 0
         },
         {
           "mouth": [
             27,
             18
-          ]
+          ],
+          "root_dx": 0
+        }
+      ]
+    },
+    "battle_stance": {
+      "row": 14,
+      "frames": 4,
+      "attach": [
+        {
+          "mouth": [
+            27,
+            19
+          ],
+          "root_dx": 0
+        },
+        {
+          "mouth": [
+            27,
+            18
+          ],
+          "root_dx": 0
+        },
+        {
+          "mouth": [
+            27,
+            18
+          ],
+          "root_dx": 0
+        },
+        {
+          "mouth": [
+            27,
+            19
+          ],
+          "root_dx": 0
+        }
+      ]
+    },
+    "basic_attack": {
+      "row": 15,
+      "frames": 5,
+      "attach": [
+        {
+          "mouth": [
+            26,
+            20
+          ],
+          "root_dx": -1
+        },
+        {
+          "mouth": [
+            28,
+            17
+          ],
+          "root_dx": 3
+        },
+        {
+          "mouth": [
+            28,
+            18
+          ],
+          "root_dx": 3
+        },
+        {
+          "mouth": [
+            28,
+            19
+          ],
+          "root_dx": 1
+        },
+        {
+          "mouth": [
+            27,
+            19
+          ],
+          "root_dx": 0
+        }
+      ]
+    },
+    "signature": {
+      "row": 16,
+      "frames": 6,
+      "attach": [
+        {
+          "mouth": [
+            27,
+            22
+          ],
+          "root_dx": 0
+        },
+        {
+          "mouth": [
+            26,
+            23
+          ],
+          "root_dx": -1
+        },
+        {
+          "mouth": [
+            28,
+            13
+          ],
+          "root_dx": 2
+        },
+        {
+          "mouth": [
+            28,
+            16
+          ],
+          "root_dx": 4
+        },
+        {
+          "mouth": [
+            28,
+            22
+          ],
+          "root_dx": 4
+        },
+        {
+          "mouth": [
+            28,
+            19
+          ],
+          "root_dx": 2
+        }
+      ]
+    },
+    "flinch": {
+      "row": 17,
+      "frames": 2,
+      "attach": [
+        {
+          "mouth": [
+            25,
+            17
+          ],
+          "root_dx": -2
+        },
+        {
+          "mouth": [
+            26,
+            18
+          ],
+          "root_dx": -1
+        }
+      ]
+    },
+    "dodge": {
+      "row": 18,
+      "frames": 3,
+      "attach": [
+        {
+          "mouth": [
+            26,
+            19
+          ],
+          "root_dx": -1
+        },
+        {
+          "mouth": [
+            27,
+            14
+          ],
+          "root_dx": -4
+        },
+        {
+          "mouth": [
+            27,
+            18
+          ],
+          "root_dx": -5
+        }
+      ]
+    },
+    "knockout": {
+      "row": 19,
+      "frames": 4,
+      "attach": [
+        {
+          "mouth": [
+            25,
+            17
+          ],
+          "root_dx": -2
+        },
+        {
+          "mouth": [
+            26,
+            21
+          ],
+          "root_dx": -2
+        },
+        {
+          "mouth": [
+            27,
+            25
+          ],
+          "root_dx": -2
+        },
+        {
+          "mouth": [
+            27,
+            27
+          ],
+          "root_dx": -2
+        }
+      ]
+    },
+    "run": {
+      "row": 20,
+      "frames": 6,
+      "attach": [
+        {
+          "mouth": [
+            28,
+            18
+          ],
+          "root_dx": 0
+        },
+        {
+          "mouth": [
+            28,
+            17
+          ],
+          "root_dx": 0
+        },
+        {
+          "mouth": [
+            28,
+            18
+          ],
+          "root_dx": 0
+        },
+        {
+          "mouth": [
+            28,
+            18
+          ],
+          "root_dx": 0
+        },
+        {
+          "mouth": [
+            28,
+            17
+          ],
+          "root_dx": 0
+        },
+        {
+          "mouth": [
+            28,
+            18
+          ],
+          "root_dx": 0
+        }
+      ]
+    },
+    "jump": {
+      "row": 21,
+      "frames": 3,
+      "attach": [
+        {
+          "mouth": [
+            27,
+            20
+          ],
+          "root_dx": 0
+        },
+        {
+          "mouth": [
+            28,
+            11
+          ],
+          "root_dx": 1
+        },
+        {
+          "mouth": [
+            28,
+            21
+          ],
+          "root_dx": 0
+        }
+      ]
+    },
+    "vine_swing": {
+      "row": 22,
+      "frames": 4,
+      "attach": [
+        {
+          "mouth": [
+            28,
+            9
+          ],
+          "root_dx": -1
+        },
+        {
+          "mouth": [
+            28,
+            9
+          ],
+          "root_dx": 0
+        },
+        {
+          "mouth": [
+            28,
+            9
+          ],
+          "root_dx": 1
+        },
+        {
+          "mouth": [
+            28,
+            9
+          ],
+          "root_dx": 0
+        }
+      ]
+    },
+    "fall": {
+      "row": 23,
+      "frames": 3,
+      "attach": [
+        {
+          "mouth": [
+            27,
+            14
+          ],
+          "root_dx": 0
+        },
+        {
+          "mouth": [
+            27,
+            19
+          ],
+          "root_dx": 1
+        },
+        {
+          "mouth": [
+            27,
+            25
+          ],
+          "root_dx": 1
+        }
+      ]
+    },
+    "swing_right": {
+      "row": 24,
+      "frames": 4,
+      "attach": [
+        {
+          "mouth": [
+            25,
+            20
+          ],
+          "root_dx": -1
+        },
+        {
+          "mouth": [
+            28,
+            18
+          ],
+          "root_dx": 2
+        },
+        {
+          "mouth": [
+            28,
+            19
+          ],
+          "root_dx": 3
+        },
+        {
+          "mouth": [
+            28,
+            19
+          ],
+          "root_dx": 1
+        }
+      ]
+    },
+    "swing_left": {
+      "row": 25,
+      "frames": 4,
+      "attach": [
+        {
+          "mouth": [
+            28,
+            18
+          ],
+          "root_dx": 0
+        },
+        {
+          "mouth": [
+            28,
+            18
+          ],
+          "root_dx": 1
+        },
+        {
+          "mouth": [
+            28,
+            20
+          ],
+          "root_dx": 1
+        },
+        {
+          "mouth": [
+            27,
+            18
+          ],
+          "root_dx": 0
+        }
+      ]
+    },
+    "swing_up": {
+      "row": 26,
+      "frames": 4,
+      "attach": [
+        {
+          "mouth": [
+            27,
+            20
+          ],
+          "root_dx": 0
+        },
+        {
+          "mouth": [
+            27,
+            14
+          ],
+          "root_dx": 0
+        },
+        {
+          "mouth": [
+            27,
+            11
+          ],
+          "root_dx": 0
+        },
+        {
+          "mouth": [
+            27,
+            16
+          ],
+          "root_dx": 0
+        }
+      ]
+    },
+    "swing_down": {
+      "row": 27,
+      "frames": 4,
+      "attach": [
+        {
+          "mouth": [
+            27,
+            14
+          ],
+          "root_dx": 0
+        },
+        {
+          "mouth": [
+            28,
+            19
+          ],
+          "root_dx": 0
+        },
+        {
+          "mouth": [
+            28,
+            24
+          ],
+          "root_dx": 0
+        },
+        {
+          "mouth": [
+            28,
+            20
+          ],
+          "root_dx": 0
+        }
+      ]
+    },
+    "brawl_stance": {
+      "row": 28,
+      "frames": 3,
+      "attach": [
+        {
+          "mouth": [
+            27,
+            19
+          ],
+          "root_dx": 0
+        },
+        {
+          "mouth": [
+            27,
+            18
+          ],
+          "root_dx": 0
+        },
+        {
+          "mouth": [
+            27,
+            21
+          ],
+          "root_dx": 0
+        }
+      ]
+    },
+    "parry": {
+      "row": 29,
+      "frames": 3,
+      "attach": [
+        {
+          "mouth": [
+            28,
+            17
+          ],
+          "root_dx": 1
+        },
+        {
+          "mouth": [
+            28,
+            16
+          ],
+          "root_dx": 2
+        },
+        {
+          "mouth": [
+            27,
+            19
+          ],
+          "root_dx": 0
+        }
+      ]
+    },
+    "counter_a": {
+      "row": 30,
+      "frames": 3,
+      "attach": [
+        {
+          "mouth": [
+            26,
+            21
+          ],
+          "root_dx": -1
+        },
+        {
+          "mouth": [
+            28,
+            18
+          ],
+          "root_dx": 3
+        },
+        {
+          "mouth": [
+            28,
+            19
+          ],
+          "root_dx": 1
+        }
+      ]
+    },
+    "counter_b": {
+      "row": 31,
+      "frames": 3,
+      "attach": [
+        {
+          "mouth": [
+            27,
+            22
+          ],
+          "root_dx": 0
+        },
+        {
+          "mouth": [
+            28,
+            14
+          ],
+          "root_dx": 3
+        },
+        {
+          "mouth": [
+            28,
+            20
+          ],
+          "root_dx": 3
+        }
+      ]
+    },
+    "take_hit": {
+      "row": 32,
+      "frames": 2,
+      "attach": [
+        {
+          "mouth": [
+            25,
+            17
+          ],
+          "root_dx": -2
+        },
+        {
+          "mouth": [
+            26,
+            19
+          ],
+          "root_dx": -1
+        }
+      ]
+    },
+    "victory_taunt": {
+      "row": 33,
+      "frames": 3,
+      "attach": [
+        {
+          "mouth": [
+            27,
+            15
+          ],
+          "root_dx": 0
+        },
+        {
+          "mouth": [
+            27,
+            14
+          ],
+          "root_dx": 0
+        },
+        {
+          "mouth": [
+            27,
+            15
+          ],
+          "root_dx": 0
+        }
+      ]
+    },
+    "guard_stance": {
+      "row": 34,
+      "frames": 3,
+      "attach": [
+        {
+          "mouth": [
+            27,
+            20
+          ],
+          "root_dx": 0
+        },
+        {
+          "mouth": [
+            27,
+            19
+          ],
+          "root_dx": 0
+        },
+        {
+          "mouth": [
+            27,
+            19
+          ],
+          "root_dx": 0
+        }
+      ]
+    },
+    "stirring": {
+      "row": 35,
+      "frames": 3,
+      "attach": [
+        {
+          "mouth": [
+            27,
+            17
+          ],
+          "root_dx": 0
+        },
+        {
+          "mouth": [
+            27,
+            17
+          ],
+          "root_dx": 0
+        },
+        {
+          "mouth": [
+            27,
+            17
+          ],
+          "root_dx": 0
+        }
+      ]
+    },
+    "concentrating": {
+      "row": 36,
+      "frames": 2,
+      "attach": [
+        {
+          "mouth": [
+            27,
+            17
+          ],
+          "root_dx": 0
+        },
+        {
+          "mouth": [
+            27,
+            16
+          ],
+          "root_dx": 0
         }
       ]
     }

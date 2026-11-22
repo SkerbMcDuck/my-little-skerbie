@@ -76,20 +76,26 @@ def leg(name, body_dy, foot):
 
 
 def frame(bob=0, ear=0, tail=0, eyes="open", head=(0, 0), crouch=0, feet=None,
-          mouth="closed", off=(0, 0), fold=False, rear=0):
+          mouth="closed", off=(0, 0), fold=False, rear=0, paws_up=True):
     """One pose.
     bob: chest/back up(-)/down(+), feet stay put.   crouch: whole body lower (+).
     head: extra (dx, dy) for head, ears and face.    ear: sweep ears back (+).
     tail: flick the tail tip up(-)/down(+).          feet: {leg: (dx, dy)} foot moves.
     mouth: closed / open.   off: move the whole sprite (jumps).
-    fold: tuck all legs under the body (lying down).
-    rear: rear up on the hind legs by this many pixels (chest, forelegs and head rise)."""
+    fold: tuck all legs under the body (lying down), or "back" to tuck only the hind legs.
+    rear: rear up on the hind legs by this many pixels (chest, forelegs and head rise).
+    paws_up: when rearing, lift the forepaws off the ground (False = sitting)."""
     feet = dict(feet or {})
-    if rear:
-        head = (head[0], head[1] - rear)
+
+    def folded(name):
+        return fold is True or (fold == "back" and "back" in name)
+
+    if rear and paws_up:
         for k in ("near_front", "far_front"):
             fx, fy = feet.get(k, (0, 0))
             feet[k] = (fx + 1, fy - rear - 1)  # forepaws come off the ground
+    if rear:
+        head = (head[0], head[1] - rear)
     g, layer = {}, {}
 
     def paint(poly, part, dark=0, acc=None):
@@ -99,7 +105,7 @@ def frame(bob=0, ear=0, tail=0, eyes="open", head=(0, 0), crouch=0, feet=None,
             layer[p] = part
 
     b, c = bob, crouch
-    hx, hy = head[0], head[1] + b + c
+    hx, hy = min(head[0], 1), head[1] + b + c  # the snout tip must stay inside the 32 px frame
     top = b + c  # back and shoulders
     # Far side, drawn first and one shade darker.
     flat = max(0, ear - 1) * 0.8  # ears past a twitch also flatten downward
@@ -115,7 +121,7 @@ def frame(bob=0, ear=0, tail=0, eyes="open", head=(0, 0), crouch=0, feet=None,
         return top - (r if "front" in name else 0)
 
     for name in ("far_back", "far_front"):
-        if not fold:
+        if not folded(name):
             paint(leg(name, hip(name), feet.get(name, (0, 0))), "farleg", dark=1)
     # Stub tail, a short spike flicking up and back.
     paint(mv([(4.5, 15), (7.5, 17), (6, 20), (2.5, 19), (0.5, 11.5 + tail - top)], 0, top), "tail",
@@ -129,7 +135,7 @@ def frame(bob=0, ear=0, tail=0, eyes="open", head=(0, 0), crouch=0, feet=None,
         paint(mv([(x0, 17), (x0 + 1.5, tp), (x0 + 4, 16)], 0, top - r * lift), "hackle", acc=lambda p: True)
     # Near legs: angled haunch at the back, straight braced foreleg.
     for name in ("near_back", "near_front"):
-        if fold:
+        if folded(name):
             # Tucked paws: short wedges sticking out under the chest and haunch.
             x0 = 6 if name == "near_back" else 17
             paint([(x0, 23 + c), (x0 + 5, 23 + c), (x0 + 5.5, 25.5 + c), (x0 - 0.5, 25.5 + c)], "leg")
@@ -183,10 +189,12 @@ def frame(bob=0, ear=0, tail=0, eyes="open", head=(0, 0), crouch=0, feet=None,
         for x in range(24, 29):
             g[(x + hx, my)] = "o"
         g[(25 + hx, my + 1)] = "w"
+    # Sideways moves (lunges, dodges) are not baked in, or he'd leave the 32 px frame.
+    # They're returned as root motion: the game slides the sprite by that many pixels.
     ox, oy = off
-    rows = ["".join(g.get((x - ox, y - oy), ".") for x in range(W)) for y in range(H)]
-    mouth_pt = [27 + hx + ox, 17 + hy + oy]
-    return rows, mouth_pt
+    rows = ["".join(g.get((x, y - oy), ".") for x in range(W)) for y in range(H)]
+    mouth_pt = [27 + hx, 17 + hy + oy]
+    return rows, mouth_pt, ox
 
 
 # ---- Animations (frame counts from ART_BRIEF §4.1) ----
@@ -293,12 +301,177 @@ anim("catch", [
     frame(crouch=1, head=(0, 0), tail=-1),
 ])
 
+# ---- Fights (raids and Delve) ----
+PLANT = {"near_back": (0, 0), "far_back": (0, 0)}
+
+
+def lunge(dx, **kw):
+    # The game moves him dx px (root motion); in-frame, his head and forepaws
+    # stretch one pixel toward the move so it reads even standing still.
+    s = (dx > 0) - (dx < 0)
+    hx, hy = kw.pop("head", (0, 0))
+    feet = dict(kw.pop("feet", {}))
+    if s > 0:
+        for k in ("near_front", "far_front"):
+            fx, fy = feet.get(k, (0, 0))
+            feet[k] = (fx + 1, fy)
+    return frame(off=(dx, kw.pop("dy", 0)), head=(min(hx + s, 2), hy), feet=feet, **kw)
+
+
+# Battle stance [4]: low and coiled, ears pinned, tail up, breathing hard.
+anim("battle_stance", [
+    frame(crouch=1, head=(0, 1), ear=1, tail=-1),
+    frame(crouch=1, head=(0, 1), ear=1, tail=-1, bob=-1),
+    frame(crouch=1, head=(0, 1), ear=2, tail=-2, bob=-1),
+    frame(crouch=1, head=(0, 1), ear=2, tail=-2),
+])
+# Basic attack [5]: coil, lunge with jaws open, bite, pull back.
+anim("basic_attack", [
+    lunge(-1, crouch=2, head=(0, 1), ear=2),
+    lunge(3, head=(1, 0), mouth="open", ear=2, tail=-2),
+    lunge(3, head=(1, 1), ear=2, tail=-1),
+    lunge(1, crouch=1, head=(0, 1), ear=1),
+    frame(crouch=1, head=(0, 1), ear=1, tail=-1),
+])
+# Signature move [6]: a big pouncing slam. (The smoke power-up flare is an effect.)
+anim("signature", [
+    frame(crouch=3, head=(0, 2), ear=2, eyes="wide", tail=-2),
+    lunge(-1, crouch=4, head=(0, 2), ear=3, eyes="wide", tail=-3),
+    frame(off=(2, -4), head=(1, 0), mouth="open", ear=2, eyes="wide",
+          feet={"near_front": (2, -1), "far_front": (2, -1), "near_back": (-2, -1), "far_back": (-2, -1)}),
+    frame(off=(4, -3), head=(1, 2), mouth="open", ear=2, eyes="wide", feet={k: (0, -1) for k in LEGS}),
+    frame(off=(4, 0), crouch=2, head=(1, 3), ear=2, tail=-2),
+    lunge(2, crouch=1, head=(0, 1), ear=1, tail=-1),
+])
+# Flinch [2]: knocked back, eyes squeezed shut.
+anim("flinch", [
+    lunge(-2, head=(-1, 0), eyes="closed", ear=3, tail=1),
+    lunge(-1, head=(0, 1), eyes="half", ear=2),
+])
+# Dodge [3]: a quick hop backward.
+anim("dodge", [
+    lunge(-1, crouch=2, ear=2),
+    frame(off=(-4, -3), ear=3, tail=-2, feet={k: (0, -1) for k in LEGS}),
+    frame(off=(-5, 0), crouch=1, ear=1),
+])
+# Knockout [4] in a fight: hit, stagger, collapse, flat.
+anim("knockout", [
+    lunge(-2, head=(-1, 0), eyes="ko", ear=3),
+    lunge(-2, head=(0, 2), eyes="ko", ear=3, crouch=2),
+    lunge(-2, head=(1, 4), eyes="ko", ear=3, crouch=4, fold=True),
+    lunge(-2, head=(1, 5), eyes="ko", ear=3, crouch=5, fold=True, tail=2),
+])
+
+# ---- Game poses (baby versions, ART_BRIEF §4.1) ----
+SIT = dict(crouch=3, rear=3, paws_up=False, fold="back")
+
+# Jungle Run: gallops on all fours, pounces over gaps, swings by his mouth.
+GALLOP = [((2, -1), (-2, 0)), ((1, -2), (-1, -1)), ((-1, 0), (1, -2)),
+          ((-2, 0), (2, -1)), ((-1, -1), (1, 0)), ((1, -1), (-1, 0))]
+anim("run", [frame(bob=-1 if i in (1, 4) else 0, head=(1, 1), ear=2, tail=-1 if i % 2 else 0,
+                   feet={"near_front": fr, "far_front": (fr[0] - 1, fr[1]),
+                         "near_back": bk, "far_back": (bk[0] + 1, bk[1])})
+                   for i, (fr, bk) in enumerate(GALLOP)])
+anim("jump", [
+    frame(crouch=2, head=(0, 1), ear=2),
+    frame(off=(1, -5), head=(1, -1), ear=3, tail=-2,
+          feet={"near_front": (3, -2), "far_front": (2, -2), "near_back": (-3, -1), "far_back": (-2, -1)}),
+    frame(crouch=2, head=(1, 2), ear=1),
+])
+anim("vine_swing", [  # the vine sprite grips at the "mouth" point
+    frame(off=(dx, -4), rear=3, head=(1, -1), ear=3, tail=t,
+          feet={"near_back": (-dx, 2), "far_back": (-dx, 2), "near_front": (-dx, 1), "far_front": (-dx, 1)})
+    for dx, t in ((-1, 0), (0, 1), (1, 2), (0, 1))
+])
+anim("fall", [
+    frame(off=(0, -2), head=(0, -1), eyes="wide", mouth="open", ear=3, tail=-3, feet={k: (0, -2) for k in LEGS}),
+    frame(off=(1, 1), head=(0, 1), eyes="wide", mouth="open", ear=3, tail=-2, feet={k: (1, -1) for k in LEGS}),
+    frame(off=(1, 4), head=(0, 3), eyes="ko", ear=3, crouch=1, tail=2),
+])
+
+# Block Party: no hammer for the baby, so he headbutts or tail-whips toward each
+# direction. The elemental burst is an effect that plays at the impact.
+anim("swing_right", [  # headbutt forward
+    lunge(-1, crouch=2, head=(-1, 1), ear=2),
+    lunge(2, head=(1, 1), ear=3, tail=-1),
+    lunge(3, head=(2, 2), ear=3, eyes="closed"),
+    lunge(1, crouch=1, head=(0, 1), ear=1),
+])
+anim("swing_left", [  # tail-whip backward
+    frame(crouch=1, tail=-3, head=(1, 0)),
+    lunge(1, crouch=1, tail=-4, head=(1, 0), ear=1),
+    lunge(1, crouch=2, tail=4, head=(1, 1), ear=2, eyes="closed"),
+    frame(crouch=1, tail=1, ear=1),
+])
+anim("swing_up", [  # rear up and headbutt the air
+    frame(crouch=2, head=(0, 1), ear=1),
+    frame(rear=3, ear=2, tail=-1),
+    frame(rear=5, head=(0, -1), ear=3, eyes="closed", tail=-2),
+    frame(rear=1, ear=1),
+])
+anim("swing_down", [  # slam the head into the ground
+    frame(rear=2, head=(0, -1), ear=1),
+    frame(head=(1, 2), ear=2),
+    frame(crouch=1, head=(2, 5), ear=3, eyes="closed", bob=1),
+    frame(crouch=1, head=(1, 2), ear=1),
+])
+
+# Bar Brawl: headbutts and pounces.
+anim("brawl_stance", [
+    frame(crouch=1, head=(0, 1), ear=2, tail=-1),
+    frame(crouch=1, head=(0, 1), ear=2, tail=-2, bob=-1),
+    frame(crouch=2, head=(0, 2), ear=2, tail=-1),
+])
+anim("parry", [  # meets the blow with his skull
+    lunge(1, head=(1, 0), ear=3, eyes="half"),
+    lunge(2, head=(1, -1), ear=3, eyes="closed", tail=-1),
+    lunge(0, crouch=1, head=(0, 1), ear=2),
+])
+anim("counter_a", [  # headbutt
+    lunge(-1, crouch=2, head=(0, 2), ear=2),
+    lunge(3, head=(2, 1), ear=3, eyes="closed", tail=-2),
+    lunge(1, crouch=1, head=(0, 1), ear=2),
+])
+anim("counter_b", [  # pounce and bite
+    frame(crouch=3, head=(0, 2), ear=3),
+    frame(off=(3, -3), head=(1, 0), mouth="open", ear=3, tail=-2, feet={k: (0, -1) for k in LEGS}),
+    lunge(3, crouch=1, head=(1, 2), ear=2),
+])
+anim("take_hit", [
+    lunge(-2, head=(-1, 0), eyes="closed", ear=3, tail=1),
+    lunge(-1, crouch=1, head=(0, 1), eyes="half", ear=2),
+])
+anim("victory_taunt", [
+    frame(rear=2, eyes="happy", mouth="open", tail=-2),
+    frame(rear=3, eyes="happy", mouth="open", tail=-3, ear=-1),
+    frame(rear=2, eyes="happy", tail=-1),
+])
+
+# Word Rush: braced and guarding the path.
+anim("guard_stance", [
+    frame(crouch=2, head=(0, 1), ear=2, tail=-1),
+    frame(crouch=2, head=(0, 1), ear=2, tail=-1, bob=-1),
+    frame(crouch=2, head=(0, 1), ear=1, tail=-2, bob=-1),
+])
+# Potion Brew: sits and paws at the cauldron.
+anim("stirring", [
+    frame(**SIT, feet={"near_front": (1, -2)}),
+    frame(**SIT, feet={"near_front": (2, -4)}, ear=1),
+    frame(**SIT, feet={"near_front": (1, -1)}, tail=-1),
+])
+# Rune Lock: sits very still, eyes wide and burning.
+anim("concentrating", [
+    frame(**SIT, eyes="wide"),
+    frame(**SIT, eyes="wide", bob=-1, ear=-1),
+])
+
 data = {
     "width": W, "height": H, "fps": 10, "palette": PAL,
     "dye_zones": {"main_fur": ["1", "2", "3", "4"], "accent_fur": ["5", "6", "7", "8"],
                   "eye_glow": ["e", "E", "f", "F"], "smoke": ["s", "S", "t", "T"]},
-    "attach": {name: [{"mouth": m} for _, m in frames] for name, frames in A.items()},
-    "animations": {name: [rows for rows, _ in frames] for name, frames in A.items()},
+    # mouth: where carried loot or a vine attaches. root_dx: px the game moves him this frame.
+    "attach": {name: [{"mouth": m, "root_dx": dx} for _, m, dx in frames] for name, frames in A.items()},
+    "animations": {name: [rows for rows, _, _ in frames] for name, frames in A.items()},
 }
 json.dump(data, open("art/source/skerbie/baby.json", "w"), indent=1)
 print("animations:", ", ".join(f"{k}[{len(v)}]" for k, v in A.items()))
