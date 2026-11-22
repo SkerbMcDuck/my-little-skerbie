@@ -1,0 +1,13 @@
+{
+  "width": 7,
+  "height": 7,
+  "fps": 8,
+  "dye_zones": {},
+  "animations": {
+    "firefly": {
+      "row": 0,
+      "frames": 4,
+      "attach": []
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "width": 8,
+  "height": 8,
+  "fps": 8,
+  "dye_zones": {},
+  "animations": {
+    "leaf": {
+      "row": 0,
+      "frames": 4,
+      "attach": []
+    }
+  }
+}

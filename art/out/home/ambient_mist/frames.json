@@ -1,0 +1,13 @@
+{
+  "width": 64,
+  "height": 14,
+  "fps": 8,
+  "dye_zones": {},
+  "animations": {
+    "mist": {
+      "row": 0,
+      "frames": 4,
+      "attach": []
+    }
+  }
+}

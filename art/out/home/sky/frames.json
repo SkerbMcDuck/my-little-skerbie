@@ -1,0 +1,28 @@
+{
+  "width": 225,
+  "height": 146,
+  "fps": 1,
+  "dye_zones": {},
+  "animations": {
+    "dawn": {
+      "row": 0,
+      "frames": 1,
+      "attach": []
+    },
+    "day": {
+      "row": 1,
+      "frames": 1,
+      "attach": []
+    },
+    "dusk": {
+      "row": 2,
+      "frames": 1,
+      "attach": []
+    },
+    "night": {
+      "row": 3,
+      "frames": 1,
+      "attach": []
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "width": 225,
+  "height": 146,
+  "fps": 8,
+  "dye_zones": {},
+  "animations": {
+    "rain": {
+      "row": 0,
+      "frames": 4,
+      "attach": []
+    }
+  }
+}
