@@ -391,6 +391,17 @@ def frame(bob=0, crouch=0, lean=0, head=(0, 0), ear=0, tail=0, cowl=0, eyes="ope
     attach = {"head": [41 + hx, 3 + hy + oy], "hand": [round(grip[0]), round(grip[1]) + oy], "aim": aim,
               "hand2": [round(fgrip[0]), round(fgrip[1]) + oy], "aim2": faim,
               "torso": [round(31 + lean * 0.5), 30 + by + oy], "root_dx": ox}
+    # Hidden data for gear fitting (tools/build_armor.py): which body part each visible pixel
+    # belongs to, and where the near arm and leg joints are. Saved to a separate file.
+    codes = {"body": "b", "arm": "a", "leg": "l", "head": "h", "ear": "e", "far": "f"}
+    attach["_parts"] = ["".join((codes.get(layer.get((x, y - oy)), "x") if (x, y - oy) in g else ".")
+                                for x in range(W)) for y in range(H)]
+    sh_ = arm_joints(REST["arm"], arm)[0]
+    kd = (leg or {}).get("knee", (0, 0))
+    hip_, kn_ = REST["leg"]["hip"], REST["leg"]["knee"]
+    attach["_joints"] = {"sh": [sh_[0], sh_[1] + oy], "el": [el[0], el[1] + oy], "pw": [pw[0], pw[1] + oy],
+                         "hip": [hip_[0], hip_[1] + by + oy],
+                         "knee": [kn_[0] + crouch * 0.5 + kd[0], kn_[1] + crouch * 0.5 + kd[1] + oy]}
     return rows, attach
 
 
@@ -636,8 +647,13 @@ data = {
                   "eye_glow": ["e", "E", "f", "F"], "smoke": ["s", "S", "t", "T"]},
     # head / hand / torso: gear and hats snap here. aim: forearm angle in degrees
     # (0 = right, 90 = down) for picking a weapon rotation. root_dx: px the game moves him.
-    "attach": {k: [a for _, a in v] for k, v in A.items()},
+    "attach": {k: [{kk: vv for kk, vv in a.items() if not kk.startswith("_")} for _, a in v] for k, v in A.items()},
     "animations": {k: [r for r, _ in v] for k, v in A.items()},
 }
 json.dump(data, open(f"art/source/skerbie/adult_{FORM}.json", "w"), indent=1)
+import os
+os.makedirs("art/source/skerbie/parts", exist_ok=True)  # generated; not committed (see .gitignore)
+json.dump({"width": W, "height": H, "animations": {k: [{"parts": a["_parts"], "joints": a["_joints"]} for _, a in v]
+                                                   for k, v in A.items()}},
+          open(f"art/source/skerbie/parts/adult_{FORM}.json", "w"))
 print("animations:", ", ".join(f"{k}[{len(v)}]" for k, v in A.items()))

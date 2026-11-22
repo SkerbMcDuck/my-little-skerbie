@@ -14,7 +14,7 @@
 # (hip/knee/heel/toe) and arms are built shoulder -> elbow -> paw, so all
 # animations and all three forms share one skeleton. Effects and gear (the small
 # hammer, weapons, hats) are separate sprites that snap to per-frame attach points.
-import json, math, sys
+import json, math, os, sys
 
 FORM = sys.argv[1] if len(sys.argv) > 1 else "speed"
 assert FORM in ("speed", "strength", "mind"), "form must be speed, strength or mind"
@@ -335,6 +335,16 @@ def frame(bob=0, crouch=0, lean=0, head=(0, 0), ear=0, tail=0, scarf=0, eyes="op
     attach = {"head": [34 + hx, 2 + hy + oy], "hand": [round(grip[0]), round(grip[1]) + oy], "aim": aim,
               "hand2": [round(fgrip[0]), round(fgrip[1]) + oy], "aim2": faim,
               "torso": [round(24 + lean * 0.5), 24 + by + oy], "root_dx": ox}
+    # Hidden data for gear fitting (tools/build_armor.py): which body part each visible pixel
+    # belongs to, and where the near arm and leg joints are. Saved to a separate file.
+    codes = {"body": "b", "arm": "a", "leg": "l", "head": "h", "ear": "e", "far": "f"}
+    attach["_parts"] = ["".join((codes.get(layer.get((x, y - oy)), "x") if (x, y - oy) in g else ".")
+                                for x in range(W)) for y in range(H)]
+    sh_ = arm_joints(ARM_REST, arm)[0]
+    kd = (leg or {}).get("knee", (0, 0))
+    attach["_joints"] = {"sh": [sh_[0], sh_[1] + oy], "el": [el[0], el[1] + oy], "pw": [pw[0], pw[1] + oy],
+                         "hip": [16.5, 27.5 + by + oy],
+                         "knee": [19.7 + crouch * 0.5 + kd[0], 37.3 + crouch * 0.5 + kd[1] + oy]}
     return rows, attach
 
 
@@ -568,8 +578,12 @@ data = {
                   "eye_glow": ["e", "E", "f", "F"], "smoke": ["s", "S", "t", "T"]},
     # head / hand / torso: gear and hats snap here. aim: the forearm angle in degrees
     # (0 = pointing right, 90 = down), for picking a weapon rotation. root_dx: px the game moves him.
-    "attach": {k: [a for _, a in v] for k, v in A.items()},
+    "attach": {k: [{kk: vv for kk, vv in a.items() if not kk.startswith("_")} for _, a in v] for k, v in A.items()},
     "animations": {k: [r for r, _ in v] for k, v in A.items()},
 }
 json.dump(data, open(f"art/source/skerbie/kid_{FORM}.json", "w"), indent=1)
+os.makedirs("art/source/skerbie/parts", exist_ok=True)  # generated; not committed (see .gitignore)
+json.dump({"width": W, "height": H, "animations": {k: [{"parts": a["_parts"], "joints": a["_joints"]} for _, a in v]
+                                                   for k, v in A.items()}},
+          open(f"art/source/skerbie/parts/kid_{FORM}.json", "w"))
 print("animations:", ", ".join(f"{k}[{len(v)}]" for k, v in A.items()))

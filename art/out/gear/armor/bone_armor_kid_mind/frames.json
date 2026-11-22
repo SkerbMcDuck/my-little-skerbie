@@ -1,0 +1,193 @@
+{
+  "width": 48,
+  "height": 48,
+  "fps": 10,
+  "dye_zones": {},
+  "animations": {
+    "idle": {
+      "row": 0,
+      "frames": 4,
+      "attach": []
+    },
+    "blink": {
+      "row": 1,
+      "frames": 2,
+      "attach": []
+    },
+    "walk": {
+      "row": 2,
+      "frames": 6,
+      "attach": []
+    },
+    "happy": {
+      "row": 3,
+      "frames": 4,
+      "attach": []
+    },
+    "eat": {
+      "row": 4,
+      "frames": 4,
+      "attach": []
+    },
+    "sleep": {
+      "row": 5,
+      "frames": 2,
+      "attach": []
+    },
+    "tired": {
+      "row": 6,
+      "frames": 2,
+      "attach": []
+    },
+    "petted": {
+      "row": 7,
+      "frames": 3,
+      "attach": []
+    },
+    "knocked_out": {
+      "row": 8,
+      "frames": 3,
+      "attach": []
+    },
+    "knocked_out_loop": {
+      "row": 9,
+      "frames": 2,
+      "attach": []
+    },
+    "working": {
+      "row": 10,
+      "frames": 4,
+      "attach": []
+    },
+    "carry": {
+      "row": 11,
+      "frames": 4,
+      "attach": []
+    },
+    "cheer": {
+      "row": 12,
+      "frames": 4,
+      "attach": []
+    },
+    "catch": {
+      "row": 13,
+      "frames": 3,
+      "attach": []
+    },
+    "battle_stance": {
+      "row": 14,
+      "frames": 4,
+      "attach": []
+    },
+    "basic_attack": {
+      "row": 15,
+      "frames": 5,
+      "attach": []
+    },
+    "signature": {
+      "row": 16,
+      "frames": 6,
+      "attach": []
+    },
+    "flinch": {
+      "row": 17,
+      "frames": 2,
+      "attach": []
+    },
+    "dodge": {
+      "row": 18,
+      "frames": 3,
+      "attach": []
+    },
+    "knockout": {
+      "row": 19,
+      "frames": 4,
+      "attach": []
+    },
+    "run": {
+      "row": 20,
+      "frames": 6,
+      "attach": []
+    },
+    "jump": {
+      "row": 21,
+      "frames": 3,
+      "attach": []
+    },
+    "vine_swing": {
+      "row": 22,
+      "frames": 4,
+      "attach": []
+    },
+    "fall": {
+      "row": 23,
+      "frames": 3,
+      "attach": []
+    },
+    "swing_right": {
+      "row": 24,
+      "frames": 4,
+      "attach": []
+    },
+    "swing_left": {
+      "row": 25,
+      "frames": 4,
+      "attach": []
+    },
+    "swing_up": {
+      "row": 26,
+      "frames": 4,
+      "attach": []
+    },
+    "swing_down": {
+      "row": 27,
+      "frames": 4,
+      "attach": []
+    },
+    "brawl_stance": {
+      "row": 28,
+      "frames": 3,
+      "attach": []
+    },
+    "parry": {
+      "row": 29,
+      "frames": 3,
+      "attach": []
+    },
+    "counter_a": {
+      "row": 30,
+      "frames": 3,
+      "attach": []
+    },
+    "counter_b": {
+      "row": 31,
+      "frames": 3,
+      "attach": []
+    },
+    "take_hit": {
+      "row": 32,
+      "frames": 2,
+      "attach": []
+    },
+    "victory_taunt": {
+      "row": 33,
+      "frames": 3,
+      "attach": []
+    },
+    "guard_stance": {
+      "row": 34,
+      "frames": 3,
+      "attach": []
+    },
+    "stirring": {
+      "row": 35,
+      "frames": 3,
+      "attach": []
+    },
+    "concentrating": {
+      "row": 36,
+      "frames": 2,
+      "attach": []
+    }
+  }
+}
