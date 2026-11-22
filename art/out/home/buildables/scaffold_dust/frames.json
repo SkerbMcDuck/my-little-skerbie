@@ -1,0 +1,17 @@
+{
+  "width": 14,
+  "height": 12,
+  "fps": 8,
+  "dye_zones": {},
+  "animations": {
+    "dust": {
+      "row": 0,
+      "frames": 3,
+      "attach": []
+    }
+  },
+  "anchor": [
+    7,
+    11
+  ]
+}

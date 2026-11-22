@@ -1,0 +1,17 @@
+{
+  "width": 12,
+  "height": 16,
+  "fps": 8,
+  "dye_zones": {},
+  "animations": {
+    "smoke_wisp": {
+      "row": 0,
+      "frames": 3,
+      "attach": []
+    }
+  },
+  "anchor": [
+    6,
+    8
+  ]
+}

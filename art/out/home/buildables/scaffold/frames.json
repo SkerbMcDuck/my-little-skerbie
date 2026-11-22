@@ -1,0 +1,17 @@
+{
+  "width": 52,
+  "height": 44,
+  "fps": 8,
+  "dye_zones": {},
+  "animations": {
+    "scaffold": {
+      "row": 0,
+      "frames": 1,
+      "attach": []
+    }
+  },
+  "anchor": [
+    26,
+    43
+  ]
+}

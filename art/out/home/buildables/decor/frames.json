@@ -1,0 +1,27 @@
+{
+  "width": 16,
+  "height": 22,
+  "fps": 8,
+  "dye_zones": {},
+  "animations": {
+    "burrow": {
+      "row": 0,
+      "frames": 3,
+      "attach": []
+    },
+    "hideout": {
+      "row": 1,
+      "frames": 3,
+      "attach": []
+    },
+    "lair": {
+      "row": 2,
+      "frames": 3,
+      "attach": []
+    }
+  },
+  "anchor": [
+    8,
+    11
+  ]
+}

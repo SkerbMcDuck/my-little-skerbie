@@ -356,11 +356,15 @@ if TIER == "lair":
             setp(gx + dx, gy + dy, "Z" if dy % 2 else "O")
 
 # Where the buildables and the crack go (ART_BRIEF §6 / BUILD_SPEC §7), for the game to read.
+# Each spot is where that buildable's "anchor" pixel goes: bottom-centre for things standing on
+# the den floor (y 366) or the ground (y 136), centre for things on the wall. Decor (lanterns)
+# appears at two spots. The light glows (tools/build_atmosphere.py) use the same places.
 SPOTS = {
-    "door": [115, 120], "garden": [190, 132], "merchant_cart": [30, 132], "overflow_pile": [148, 134],
-    "bed": [44, 372], "pantry": [70, 300], "workbench": [180, 372], "chest": [140, 372],
-    "walls_traps": [115, 176], "training": [96, 372], "hearth": [112, 340], "decor": [38, 300],
-    "chalkboard": [196, 300], "blueprint": [166, 240], "radio": [150, 300], "crack": [112, 428],
+    "door": [115, 120], "walls_traps": [115, 136], "garden": [190, 136], "merchant_cart": [30, 136],
+    "overflow_pile": [158, 136],
+    "bed": [40, 366], "training": [82, 366], "hearth": [124, 366], "chest": [158, 366], "workbench": [190, 366],
+    "pantry": [64, 288], "decor": [[30, 290], [204, 254]], "chalkboard": [190, 300], "blueprint": [124, 292],
+    "radio": [92, 262], "crack": [112, 428],
 }
 os.makedirs("art/source/home", exist_ok=True)
 json.dump({"width": W, "height": H, "fps": 1, "palette": PAL, "dye_zones": {}, "attach": {},

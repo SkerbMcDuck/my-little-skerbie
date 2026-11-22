@@ -1,0 +1,17 @@
+{
+  "width": 16,
+  "height": 12,
+  "fps": 8,
+  "dye_zones": {},
+  "animations": {
+    "scorch": {
+      "row": 0,
+      "frames": 1,
+      "attach": []
+    }
+  },
+  "anchor": [
+    8,
+    6
+  ]
+}

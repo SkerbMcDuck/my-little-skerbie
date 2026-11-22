@@ -93,9 +93,9 @@ LIGHT = {  # tint colour, tint alpha on the surface, alpha in the den, glow stre
 GLOWS = {  # warm light sources in the den (ART_BRIEF §6.1). The game draws a source's glow only
            # when that light exists: the Burrow's candle is "wall_left"; lanterns and the hearth
            # light up as they're built.
-    "hearth": (112, 340, 62, (255, 179, 92)),
-    "wall_left": (38, 300, 34, (255, 208, 138)),
-    "wall_right": (196, 292, 30, (255, 208, 138)),
+    "hearth": (124, 350, 62, (255, 179, 92)),       # the fire, just above the hearth spot
+    "wall_left": (34, 292, 34, (255, 208, 138)),    # left decor spot (and the Burrow's candle)
+    "wall_right": (204, 254, 30, (255, 208, 138)),  # right decor spot
     "door": (115, 124, 22, (255, 200, 140)),
 }
 for phase, L in LIGHT.items():

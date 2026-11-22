@@ -1,0 +1,17 @@
+{
+  "width": 16,
+  "height": 16,
+  "fps": 8,
+  "dye_zones": {},
+  "animations": {
+    "cracks": {
+      "row": 0,
+      "frames": 1,
+      "attach": []
+    }
+  },
+  "anchor": [
+    8,
+    8
+  ]
+}

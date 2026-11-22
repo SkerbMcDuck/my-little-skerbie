@@ -1,0 +1,17 @@
+{
+  "width": 16,
+  "height": 6,
+  "fps": 8,
+  "dye_zones": {},
+  "animations": {
+    "broken_plank": {
+      "row": 0,
+      "frames": 1,
+      "attach": []
+    }
+  },
+  "anchor": [
+    8,
+    3
+  ]
+}
