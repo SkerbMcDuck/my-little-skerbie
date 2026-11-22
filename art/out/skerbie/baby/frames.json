@@ -1,0 +1,43 @@
+{
+  "width": 32,
+  "height": 32,
+  "fps": 10,
+  "dye_zones": {
+    "main_fur": [
+      "1",
+      "2",
+      "3",
+      "4"
+    ],
+    "accent_fur": [
+      "5",
+      "6",
+      "7",
+      "8"
+    ],
+    "eye_glow": [
+      "e",
+      "E",
+      "f",
+      "F"
+    ],
+    "smoke": [
+      "s",
+      "S",
+      "t",
+      "T"
+    ]
+  },
+  "animations": {
+    "idle": {
+      "row": 0,
+      "frames": 4,
+      "attach": []
+    },
+    "blink": {
+      "row": 1,
+      "frames": 2,
+      "attach": []
+    }
+  }
+}
