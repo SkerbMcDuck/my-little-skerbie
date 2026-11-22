@@ -146,6 +146,8 @@ def frame(bob=0, crouch=0, lean=0, head=(0, 0), ear=0, tail=0, cowl=0, eyes="ope
         el = pose["el_at"] if "el_at" in pose else add(add(rest["el"], up), pose.get("el", (0, 0)))
         pw = pose["paw_at"] if "paw_at" in pose else add(add(rest["paw"], up), pose.get("paw", (0, 0)))
         floor = 57 - off[1]  # paws stay above the ground line
+        if JUG and pw[0] > 55:  # his big fists stay inside the right edge
+            pw = (55, pw[1])
         if pw[1] > floor:
             pw = (pw[0] + 1.5, floor)
         if el[1] > floor:
@@ -188,7 +190,8 @@ def frame(bob=0, crouch=0, lean=0, head=(0, 0), ear=0, tail=0, cowl=0, eyes="ope
     arm_paint(REST["farm"], farm, "far", dark=1)
     leg_paint(REST["fleg"], fleg, "far", dark=1)
     t = tail
-    if JUG:  # short, thick tail with a spiked accent-fur tip
+    if JUG:  # short, thick tail with a spiked accent-fur tip (kept inside the left edge)
+        t = max(t, -2)
         paint(mv([(20, 39), (22.5, 46), (14, 50), (7, 48), (3 + t, 42), (5.5 + t, 39.5), (9, 43.5), (15, 43)], 0, by),
               "tail", acc=lambda p: p[0] <= 8 + t)
     else:
