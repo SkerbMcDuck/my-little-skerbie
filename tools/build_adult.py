@@ -348,7 +348,8 @@ def frame(bob=0, crouch=0, lean=0, head=(0, 0), ear=0, tail=0, cowl=0, eyes="ope
         runes += [mv([p], *up)[0] for p in ((33, 22), (34, 23), (37, 22), (36, 23))]  # two arms branching up
         runes += [mv([(x, 19 - (x - 32) * 0.12)], *up)[0] for x in range(32, 39)]  # collar
         _, el, pw = arm_joints(REST["arm"], arm)
-        runes += [(el[0] + (pw[0] - el[0]) * f / 10, el[1] + (pw[1] - el[1]) * f / 10) for f in range(4, 10)]
+        if pw[1] > 18 - off[1]:  # skip the bracer glow when his fist is up by his face (it reads as extra eyes)
+            runes += [(el[0] + (pw[0] - el[0]) * f / 10, el[1] + (pw[1] - el[1]) * f / 10) for f in range(4, 10)]
         runes += [(x + lean * 0.2, 38 + by) for x in range(24, 36)]               # hip line
         for x, y in runes:
             p = (round(x), round(y))
