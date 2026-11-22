@@ -120,15 +120,11 @@ def frame(bob=0, ear=0, tail=0, scarf=0, eyes="open"):
     near = {"open":   ["ooo...", "eEEoo.", "EEEEEo", ".ffffF"],
             "half":   ["ooo...", "oooooo", "EEEEEo", ".ffffF"],
             "closed": ["ooo...", "222...", "oooooo", ".2222."]}[eyes]
-    far = {"open": ["o.", "Eo", "fF"], "half": ["o.", "oo", "fF"], "closed": ["o.", "2.", "oo"]}[eyes]
+    # True side view: only the near eye shows (George, 2026-11-21).
     for j, row in enumerate(near):
         for i, ch in enumerate(row):
             if ch != ".":
                 g[(33 + i, 7 + b + j)] = ch
-    for j, row in enumerate(far):
-        for i, ch in enumerate(row):
-            if ch != ".":
-                g[(41 + i, 8 + b + j)] = ch
     for x in range(39, 46):
         g[(x, 13 + b)] = "o"
     g[(40, 14 + b)] = "w"
