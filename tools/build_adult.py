@@ -42,10 +42,13 @@ if FORM == "stalker":
 if JUG:
     PAL.update({"q": "#bfae8c", "r": "#a8945e", "u": "#8b7a4a"})      # forearm wraps, worn cloth (never dyed)
 if OCC:
-    PAL.update({"m": "#4a3a5c", "n": "#3a2d4a", "v": "#2a2036"})      # robe, dusky purple (never dyed)
+    PAL.update({"m": "#4a3a5c", "n": "#3a2d4a", "v": "#2a2036",       # battle coat, dusky purple (never dyed)
+                "x": "#2c5560", "y": "#1f3d44", "z": "#17151c",       # pants, deep teal (never dyed)
+                "b": "#3b2a22"})                                      # belt, dark wood leather (never dyed)
 LX, LY = -0.6, -0.8  # light from top-left
 N4 = ((1, 0), (-1, 0), (0, 1), (0, -1))
 FUR, ACC, CLOTH, BLADE, WRAP, ROBE, GLOW = "1234", "5678", "jkll", "wwii", "qruu", "mnvv", "eEfF"
+PANTS, BELT = "xxyz", "bbbb"
 
 REST = {
     "arm":  {"sh": (33, 23), "el": (35, 32.5), "paw": (41.5, 37)},
@@ -68,8 +71,12 @@ if JUG:  # wider stance, shoulders set forward, huge forearms that widen toward 
     LEG_W = (11, 7.5, 6.5, 5.5, 5.6, 4.6, 3.6)
 if OCC:  # sleeves: narrow at the shoulder, flaring into bell cuffs; slender paws held before the chest
     ARM_W = (5, 5, 8, 4.2, 3.2)
+    # Legs hang below him as he floats: knees soft, heels lifted, toes pointing down.
     REST = dict(REST, arm={"sh": (33, 23), "el": (34, 31.5), "paw": (39.5, 33.5)},
-                farm={"sh": (36.5, 22), "el": (38, 30.5), "paw": (42.5, 32)})
+                farm={"sh": (36.5, 22), "el": (38, 30.5), "paw": (42.5, 32)},
+                leg={"hip": (28, 38), "knee": (32.5, 47), "heel": (28.5, 53.5), "toe": (32.5, 58.5)},
+                fleg={"hip": (32, 37.5), "knee": (36.5, 46.5), "heel": (32.5, 53), "toe": (36.5, 58)})
+    LEG_W = (7.5, 5.5, 5, 4, 4, 3.4, 2.6)
 EYES = {  # '.' leaves the fur underneath
     "open":   ["ooo...", "eEEoo.", "EEEEEo", ".ffffF"],
     "half":   ["ooo...", "oooooo", "EEEEEo", ".ffffF"],
@@ -195,6 +202,11 @@ def frame(bob=0, crouch=0, lean=0, head=(0, 0), ear=0, tail=0, cowl=0, eyes="ope
         toe = add(rest["toe"], pose.get("toe", (0, 0)))
         ball = (toe[0] - 3, toe[1] - 1)
         t1, t2, s1, s2, f1, f2, f3 = LEG_W
+        if OCC:  # cloth pants down to the ankle, bare clawed feet below
+            ball = (toe[0] - 1.5, toe[1] - 2.5)    # his feet hang, so the foot points down
+            paint([seg(hip, kn, t1, t2), seg(kn, heel, s1, s2)], part, PANTS, dark=dark)
+            paint([seg(heel, ball, f1, f2, 0.4), seg(ball, toe, f2, f3, 0.6)], part, dark=dark)
+            return
         paint([seg(hip, kn, t1, t2),               # thigh
                seg(kn, heel, s1, s2),              # shin, angled back
                seg(heel, ball, f1, f2, 0.8),       # long foot down to the ball
@@ -212,8 +224,7 @@ def frame(bob=0, crouch=0, lean=0, head=(0, 0), ear=0, tail=0, cowl=0, eyes="ope
         far_ear = [(36, 7.5), (43, 3.5), (30.5 + e, -0.5 + e * 0.5 + fy)]
     paint(mv(far_ear, hx, hy), "far", dark=1)
     arm_paint(REST["farm"], farm, "far", dark=1)
-    if not OCC:  # the Occultist's legs are hidden under his robe
-        leg_paint(REST["fleg"], fleg, "far", dark=1)
+    leg_paint(REST["fleg"], fleg, "far", dark=1)
     t = tail
     if JUG:  # short, thick tail with a spiked accent-fur tip (kept inside the left edge)
         t = max(t, -2)
@@ -245,21 +256,25 @@ def frame(bob=0, crouch=0, lean=0, head=(0, 0), ear=0, tail=0, cowl=0, eyes="ope
                  (38, 33, 0.5), (34, 40, 0), (28, 42.5, 0)]
         chest = mv([(36, 21), (40, 25), (38, 33), (35, 37), (34.5, 26)], *up)
     paint([(x + lean * k, y + by) for x, y, k in torso], "body", acc=lambda p: inside(chest, *p))
+    # Near leg.
+    leg_paint(REST["leg"], leg, "leg")
     if OCC:
-        # The robe: from the shoulders down past his hidden legs to a tattered hem that
-        # hangs clear of the ground (he floats). The hem sways with his "steps" and the cowl dial.
-        # A slim, straight column of robe; the hem ends well above the ground (he levitates).
-        s = (leg or {}).get("toe", (0, 0))[0] * 0.4 + cowl * 0.5
-        robe = [(26, 21, 1), (31, 18, 1), (37.5, 19, 1), (40, 25, 1), (40, 34, 0.6), (41, 44, 0.3),
-                (42 + s, 51, 0), (39.5 + s, 49.5, 0), (37 + s, 52, 0), (34 + s, 50, 0), (31 + s, 52.5, 0),
-                (28.5 + s, 50, 0), (26 + s, 52, 0), (23.5 + s, 50, 0), (22 + s, 51, 0), (23, 42, 0.3),
-                (24.5, 32, 0.6), (25, 26, 1)]
-        paint([(x + lean * k, y + by) for x, y, k in robe], "robe", ROBE)
-        # The robe opens in a V at the chest, showing fur (where his sigils glow).
+        # A fitted battle coat to mid-thigh, split at the front so his legs move freely,
+        # with longer tattered tails at the back that sway with his steps and the cowl dial.
+        s = (leg or {}).get("toe", (0, 0))[0] * 0.3 + cowl * 0.6
+        coat = [(26, 21, 1), (31, 18, 1), (37.5, 19, 1), (40, 25, 1), (40, 34, 0.6), (39.5, 39, 0.3),
+                (36, 37.5, 0.3), (32, 38.5, 0.3), (28.5 + s, 42.5, 0), (26 + s, 41, 0), (24 + s, 45, 0),
+                (22 + s, 42.5, 0), (20.5 + s, 45.5, 0), (21.5, 38, 0.3), (24, 31, 0.6), (25, 26, 1)]
+        paint([(x + lean * k, y + by) for x, y, k in coat], "robe", ROBE)
+        # A leather belt cinching the coat at the waist, with an iron buckle.
+        belt = [(23.5, 32.5, 0.6), (40.3, 32.5, 0.6), (40.3, 35.5, 0.6), (23.5, 35.5, 0.6)]
+        paint([(x + lean * k, y + by) for x, y, k in belt], "belt", BELT)
+        bk = (round(29 + lean * 0.6), round(33.5 + by))
+        for p in (bk, (bk[0] + 1, bk[1]), (bk[0], bk[1] + 1), (bk[0] + 1, bk[1] + 1)):
+            g[p] = "w"
+            layer[p] = "buckle"
+        # The coat opens in a V at the chest, showing fur (where his sigils glow).
         paint(mv([(33.5, 19), (38.5, 20), (37, 30), (35.5, 32)], *up), "body", acc=lambda p: True)
-    else:
-        # Near leg.
-        leg_paint(REST["leg"], leg, "leg")
     # Neck, halfway between chest and head.
     if OCC:  # the long neck spans from the head down to the (lowered) shoulders
         paint([(32 + hx, 12 + hy), (38.5 + hx, 11 + hy), (39.5 + lean, 20 + by), (32.5 + lean, 22 + by)], "body")
@@ -317,7 +332,7 @@ def frame(bob=0, crouch=0, lean=0, head=(0, 0), ear=0, tail=0, cowl=0, eyes="ope
             if q in layer and layer[q] != part and order[q] < order[(x, y)] and (layer[q] != "far" or part == "arm"):
                 g[(x, y)] = ("o" if part == "arm" else CLOTH[3] if part in ("hood", "cowl")
                              else BLADE[3] if part == "blade" else ACC[3] if part == "mane"
-                             else ROBE[3] if part == "robe" else FUR[3])
+                             else ROBE[3] if part == "robe" else "o" if part == "belt" else FUR[3])
                 break
     for p in [p for p in g if not any((p[0] + dx, p[1] + dy) in g for dx, dy in N4)]:
         del g[p]
