@@ -1,5 +1,5 @@
-# Builds the adult Skerbie forms (64x64) as pixel grids -> JSON.
-# Usage: python tools/build_adult.py stalker   (only the Shadow Stalker look test so far)
+# Builds the adult Skerbie forms (64x64), all 37 animations, as pixel grids -> JSON.
+# Usage: python tools/build_adult.py stalker   (the other three adults come later)
 #        python tools/render.py art/source/skerbie/adult_stalker.json --out art/out/skerbie/adult_stalker
 #
 # Same angular house style as the approved baby and kids: straight-edged polygons,
@@ -8,8 +8,10 @@
 #   stalker (SKB-AD-SPD, Shadow Stalker): lean and agile, a hooded cowl (the Speed
 #   kid's slate scarf grown into a hood), swept-back ears through the hood, a long
 #   tail ending in a blade. His constant smoke trail is a separate effect sprite.
-# Arms and legs are built from joints (shoulder/elbow/paw, hip/knee/heel/toe) so the
-# full animation set can pose them later; this file starts with idle + blink.
+# Look approved by George (2026-11-22). frame(...) is a rig: arms and legs are built
+# from joints (shoulder/elbow/paw, hip/knee/heel/toe), each limb shaded as one piece,
+# and with no pose set idle and blink come out exactly as approved. The animation
+# choreography follows the kids' (tools/build_kid.py), scaled to the bigger body.
 import json, math, sys
 
 FORM = sys.argv[1] if len(sys.argv) > 1 else "stalker"
@@ -35,10 +37,13 @@ REST = {
     "leg":  {"hip": (27, 38), "knee": (32, 47.5), "heel": (26, 56), "toe": (34.5, 62)},
     "fleg": {"hip": (31, 37.5), "knee": (36.5, 47), "heel": (31, 55.5), "toe": (39, 62)},
 }
-EYES = {
+EYES = {  # '.' leaves the fur underneath
     "open":   ["ooo...", "eEEoo.", "EEEEEo", ".ffffF"],
     "half":   ["ooo...", "oooooo", "EEEEEo", ".ffffF"],
     "closed": ["ooo...", "222...", "oooooo", ".2222."],
+    "happy":  ["ooo...", "ooeEEo", "Ef..fE", "o....o"],   # glowing smug squint
+    "wide":   ["oo....", "eEEoo.", "EEEEEo", "fffffF"],
+    "ko":     ["fo.fo.", ".ffo..", ".ffo..", "fo.fo."],   # dim X
 }
 
 
@@ -86,7 +91,13 @@ def seg(a, b, wa, wb, ext=0.6):
             (b2[0] - nx * wb / 2, b2[1] - ny * wb / 2), (a2[0] - nx * wa / 2, a2[1] - ny * wa / 2)]
 
 
-def frame(bob=0, ear=0, tail=0, cowl=0, eyes="open"):
+def frame(bob=0, crouch=0, lean=0, head=(0, 0), ear=0, tail=0, cowl=0, eyes="open", mouth="closed",
+          arm=None, farm=None, leg=None, fleg=None, off=(0, 0)):
+    """One pose, in pixels. bob: body up(-)/down(+) with feet planted. crouch: sink the hips,
+    knees push forward. lean: tip the chest and head forward (+) or back (-). head: extra (dx, dy).
+    ear: sweep ears back. tail / cowl: flick the tips. arm / farm: {"el"/"paw": nudge} or
+    {"el_at"/"paw_at": exact pixel}. leg / fleg: {"knee"/"heel"/"toe": nudge}.
+    off: (root_dx, dy); root_dx is not baked in, the game slides the sprite by it."""
     g, layer, order = {}, {}, {}
     z = [0]
 
@@ -98,58 +109,83 @@ def frame(bob=0, ear=0, tail=0, cowl=0, eyes="open"):
             g[p] = (ACC if r is True else r if r else ramp)[t]
             layer[p], order[p] = part, z[0]
 
-    b = bob
-    up = (0, b)
+    by = bob + crouch
+    up = (lean, by)                                 # chest and shoulders
+    # Head offset in whole pixels (the eye and mouth are stamped on the grid; snout stays in frame).
+    hx, hy = round(min(head[0], 1) + lean), round(head[1] + by)
+    lift = hy + off[1]
+    flat = max(0, ear - 1) * 0.6
+    if lift + flat < -1:                            # head raised: pin ears back inside the frame
+        ear, flat = ear + (-1 - lift - flat) * 0.8, -1 - lift
+    e, fy = ear, flat
 
-    def arm(rest, part, dark=0):
-        sh, el, pw = add(rest["sh"], up), add(rest["el"], up), add(rest["paw"], up)
+    def arm_joints(rest, pose):
+        pose = pose or {}
+        sh = add(rest["sh"], up)
+        el = pose["el_at"] if "el_at" in pose else add(add(rest["el"], up), pose.get("el", (0, 0)))
+        pw = pose["paw_at"] if "paw_at" in pose else add(add(rest["paw"], up), pose.get("paw", (0, 0)))
+        floor = 57 - off[1]  # paws stay above the ground line
+        if pw[1] > floor:
+            pw = (pw[0] + 1.5, floor)
+        if el[1] > floor:
+            el = (el[0], floor)
+        return sh, el, pw
+
+    def arm_paint(rest, pose, part, dark=0):
+        sh, el, pw = arm_joints(rest, pose)
         d = math.hypot(pw[0] - el[0], pw[1] - el[1]) or 1
         tip = (pw[0] + (pw[0] - el[0]) / d * 3, pw[1] + (pw[1] - el[1]) / d * 3)
         paint([seg(sh, el, 6, 4.6), seg(el, pw, 4.6, 3.8), seg(pw, tip, 5, 3.6, 0.4)], part, dark=dark)
 
-    def leg(rest, part, dark=0):
-        hip, kn = add(rest["hip"], up), rest["knee"]
-        ball = (rest["toe"][0] - 3, rest["toe"][1] - 1)
-        paint([seg(hip, kn, 8, 5.5),                       # thigh
-               seg(kn, rest["heel"], 5, 4),                # shin, angled back
-               seg(rest["heel"], ball, 4.4, 3.6, 0.8),     # long foot down to the ball
-               seg(ball, rest["toe"], 3.6, 2.8, 0.6)],     # toes flat on the ground
+    def leg_paint(rest, pose, part, dark=0):
+        pose = pose or {}
+        hip = add(rest["hip"], (0, by))
+        kn = add(add(rest["knee"], (crouch * 0.5, crouch * 0.5)), pose.get("knee", (0, 0)))
+        heel = add(rest["heel"], pose.get("heel", (0, 0)))
+        toe = add(rest["toe"], pose.get("toe", (0, 0)))
+        ball = (toe[0] - 3, toe[1] - 1)
+        paint([seg(hip, kn, 8, 5.5),               # thigh
+               seg(kn, heel, 5, 4),                # shin, angled back
+               seg(heel, ball, 4.4, 3.6, 0.8),     # long foot down to the ball
+               seg(ball, toe, 3.6, 2.8, 0.6)],     # toes flat on the ground
               part, dark=dark)
 
     # Far side, one shade darker.
-    paint(mv([(36, 7.5), (43, 3.5), (30.5 + ear, -0.5 + ear * 0.5)], 0, b), "far", dark=1)   # far ear
-    arm(REST["farm"], "far", dark=1)
-    leg(REST["fleg"], "far", dark=1)
+    paint(mv([(36, 7.5), (43, 3.5), (30.5 + e, -0.5 + e * 0.5 + fy)], hx, hy), "far", dark=1)   # far ear
+    arm_paint(REST["farm"], farm, "far", dark=1)
+    leg_paint(REST["fleg"], fleg, "far", dark=1)
     # Long tail: back from the rump in two bends, ending in a blade.
     t = tail
     knots = [(24, 41), (16, 45.5), (9.5, 41.5), (7 + t * 0.5, 33), (7 + t, 26)]
     widths = [5.5, 4.6, 4, 3.4, 3]
-    paint([seg(mv([knots[i]], 0, b)[0], mv([knots[i + 1]], 0, b)[0], widths[i], widths[i + 1])
+    paint([seg(mv([knots[i]], 0, by)[0], mv([knots[i + 1]], 0, by)[0], widths[i], widths[i + 1])
            for i in range(len(knots) - 1)], "tail")
     # The blade: a leaf-shaped iron tip with a bright edge on the lit side.
-    paint(mv([(4 + t, 28), (10 + t, 27), (9.5 + t, 20), (7 + t, 12), (4 + t, 19)], 0, b), "blade", BLADE)
+    paint(mv([(4 + t, 28), (10 + t, 27), (9.5 + t, 20), (7 + t, 12), (4 + t, 19)], 0, by), "blade", BLADE)
     # Cowl tail: the hood's cloth drapes down his back in tattered points.
     c = cowl
     paint(mv([(27, 19), (33, 17), (31, 27), (27, 34 + c), (25, 30 + c), (22, 35 + c * 1.5), (21, 28 + c),
-              (18, 30 + c * 1.5), (21, 22)], 0, b), "cowl", CLOTH)
-    # Torso: upright, a little hunched forward; deep chest, narrow waist.
-    paint(mv([(22, 40), (22.5, 30), (25, 22), (31, 18.5), (37.5, 19.5), (40, 25), (38, 33), (34, 40), (28, 42.5)], 0, b),
-          "body", acc=lambda p: inside(mv([(36, 21), (40, 25), (38, 33), (35, 37), (34.5, 26)], 0, b), *p))
+              (18, 30 + c * 1.5), (21, 22)], *up), "cowl", CLOTH)
+    # Torso: upright, a little hunched forward. The chest takes the lean, the hips stay.
+    torso = [(22, 40, 0), (22.5, 30, 0.5), (25, 22, 1), (31, 18.5, 1), (37.5, 19.5, 1), (40, 25, 1),
+             (38, 33, 0.5), (34, 40, 0), (28, 42.5, 0)]
+    chest = mv([(36, 21), (40, 25), (38, 33), (35, 37), (34.5, 26)], *up)
+    paint([(x + lean * k, y + by) for x, y, k in torso], "body", acc=lambda p: inside(chest, *p))
     # Near leg.
-    leg(REST["leg"], "leg")
-    # Neck.
-    paint(mv([(32, 14), (38, 13), (39.5, 20), (32.5, 22)], 0, b), "body")
+    leg_paint(REST["leg"], leg, "leg")
+    # Neck, halfway between chest and head.
+    paint(mv([(32, 14), (38, 13), (39.5, 20), (32.5, 22)], (lean + hx) / 2, (by + hy) / 2), "body")
     # Head: the family wedge, long snout.
-    paint(mv([(33, 11), (36, 6.5), (42, 5), (47, 7), (55, 11.5), (53.5, 15), (46, 18), (37, 18), (34, 15.5)], 0, b),
-          "head", acc=lambda p: p[1] >= 16.5 + b and 38 <= p[0] <= 49)
+    paint(mv([(33, 11), (36, 6.5), (42, 5), (47, 7), (55, 11.5), (53.5, 15), (46, 18), (37, 18), (34, 15.5)], hx, hy),
+          "head", acc=lambda p: p[1] >= 16.5 + hy and 38 + hx <= p[0] <= 49 + hx)
     # Hood over the back of the head and the shoulders, leaving the face clear.
     paint(mv([(29, 16), (31, 8), (36, 3.5), (41, 3), (44, 5.5), (40.5, 6.5), (37.5, 9), (36, 14), (38, 19),
-              (34, 23), (27.5, 24), (26, 20)], 0, b), "hood", CLOTH)
+              (34, 23), (27.5, 24), (26, 20)], hx, hy), "hood", CLOTH)
     # Near ear: long and swept back, poking out through the hood.
-    paint(mv([(33.5, 9), (43, 3.5), (28.5 + ear, -0.5 + ear * 0.5)], 0, b), "ear",
-          acc=lambda p: inside(mv([(35.5, 7), (40.5, 4.2), (31.5 + ear, 1.2 + ear * 0.4)], 0, b), *p))
+    paint(mv([(33.5, 9), (43, 3.5), (28.5 + e, -0.5 + e * 0.5 + fy)], hx, hy), "ear",
+          acc=lambda p: inside(mv([(35.5, 7), (40.5, 4.2), (31.5 + e, 1.2 + e * 0.4 + fy)], hx, hy), *p))
     # Near arm, outlined so it reads over his body.
-    arm(REST["arm"], "arm")
+    arm_paint(REST["arm"], arm, "arm")
 
     # Seams: darken the edge of a part where it sits on an earlier part.
     for (x, y), part in list(layer.items()):
@@ -168,32 +204,271 @@ def frame(bob=0, ear=0, tail=0, cowl=0, eyes="open"):
         if any((x + dx, y + dy) not in filled for dx, dy in N4):
             g[(x, y)] = "o"
 
-    # Eye (side view: the near eye only), mouth line and fang.
+    # Eye (side view: the near eye only), mouth and fang.
     for j, row in enumerate(EYES[eyes]):
         for i, ch in enumerate(row):
             if ch != ".":
-                g[(41 + i, 9 + b + j)] = ch
-    for x in range(47, 55):
-        g[(x, 15 + b)] = "o"
-    g[(48, 16 + b)] = "w"
+                g[(41 + hx + i, 9 + hy + j)] = ch
+    if mouth == "open":
+        for x in range(46, 56):
+            g[(x + hx, 15 + hy)] = "o"
+        for x in range(46, 54):
+            g[(x + hx, 16 + hy)] = "o"
+    else:
+        for x in range(47, 55):
+            g[(x + hx, 15 + hy)] = "o"
+    g[(48 + hx, 16 + hy)] = "w"
 
-    rows = ["".join(g.get((x, y), ".") for x in range(W)) for y in range(H)]
-    pw, el = add(REST["arm"]["paw"], up), add(REST["arm"]["el"], up)
+    ox, oy = off
+    rows = ["".join(g.get((x, y - oy), ".") for x in range(W)) for y in range(H)]
+    _, el, pw = arm_joints(REST["arm"], arm)
+    d = math.hypot(pw[0] - el[0], pw[1] - el[1]) or 1
+    grip = (pw[0] + (pw[0] - el[0]) / d * 1.5, pw[1] + (pw[1] - el[1]) / d * 1.5)
     aim = round(math.degrees(math.atan2(pw[1] - el[1], pw[0] - el[0])))
-    attach = {"head": [41, 3 + b], "hand": [round(pw[0] + 1.5), round(pw[1] + 1)], "aim": aim,
-              "torso": [31, 30 + b], "root_dx": 0}
+    attach = {"head": [41 + hx, 3 + hy + oy], "hand": [round(grip[0]), round(grip[1]) + oy], "aim": aim,
+              "torso": [round(31 + lean * 0.5), 30 + by + oy], "root_dx": ox}
     return rows, attach
 
 
-A = {
-    # Idle: breathe, ears twitch, the cowl and tail blade trail a frame behind.
-    "idle": [frame(), frame(bob=-1), frame(bob=-1, ear=1, cowl=-1, tail=-1), frame(ear=1, cowl=-1, tail=-1)],
-    "blink": [frame(eyes="half"), frame(eyes="closed")],
-}
+# ---- Animations ----
+# F(...) takes the kids' choreography numbers and scales them to the adult body
+# (about 4/3). Exact placements ("el_at"/"paw_at") are adult pixels and aren't scaled.
+K = 4 / 3
+
+
+def sc(v):
+    return (round(v[0] * K, 1), round(v[1] * K, 1))
+
+
+def F(**kw):
+    for k in ("crouch", "lean"):
+        if k in kw:
+            kw[k] = round(kw[k] * K)
+    if "head" in kw:
+        kw["head"] = sc(kw["head"])
+    if "off" in kw:
+        kw["off"] = (round(kw["off"][0] * K), round(kw["off"][1] * K))
+    for k in ("arm", "farm", "leg", "fleg"):
+        if kw.get(k):
+            kw[k] = {j: (v if j.endswith("_at") else sc(v)) for j, v in kw[k].items()}
+    return frame(**kw)
+
+
+A = {}
+
+
+def anim(name, frames):
+    A[name] = frames
+
+
+# Exact arm placements for poses where the paw must clear his head (adult pixels).
+UP_N = {"el_at": (33, 14), "paw_at": (35.5, 4.5)}     # near paw straight up over his ears
+UP_F = {"el_at": (36.5, 13), "paw_at": (39.5, 4)}     # far paw up
+BACK = {"el_at": (28, 16), "paw_at": (22.5, 9)}       # wound back behind his head
+REACH = {"el_at": (39, 16), "paw_at": (45, 8)}        # reaching up and forward
+
+# ---- Home ----
+anim("idle", [frame(), frame(bob=-1), frame(bob=-1, ear=1, cowl=-1, tail=-1), frame(ear=1, cowl=-1, tail=-1)])
+anim("blink", [frame(eyes="half"), frame(eyes="closed")])
+STEP = [{"heel": (-3, 0), "toe": (-3, 0)}, {"knee": (1, -2), "heel": (-1, -3), "toe": (1, -2)},
+        {"knee": (2, -1), "heel": (2, -1), "toe": (3, 0)}, {"heel": (3, 0), "toe": (3, 0)},
+        {"heel": (1, 0), "toe": (1, 0)}, {"heel": (-1, 0), "toe": (-1, 0)}]
+anim("walk", [F(bob=-1 if i in (1, 4) else 0, leg=STEP[i], fleg=STEP[(i + 3) % 6],
+                arm={"el": (-1 + (i % 3), 0), "paw": (-2 + (i % 3) * 2, 0)},
+                farm={"el": (1 - (i % 3), 0), "paw": (2 - (i % 3) * 2, 0)},
+                cowl=-1 if i % 2 else 0, tail=-1 if i in (2, 5) else 0) for i in range(6)])
+anim("happy", [
+    F(crouch=2, eyes="happy"),
+    F(off=(0, -3), eyes="happy", arm=REACH, cowl=-1, tail=-1),
+    F(off=(0, -4), eyes="happy", arm=UP_N, farm=UP_F, cowl=-2, tail=-2,
+      leg={"heel": (0, -1), "toe": (0, -1)}, fleg={"heel": (0, -1), "toe": (0, -1)}),
+    F(off=(0, -1), eyes="happy", arm={"el": (0, -1), "paw": (0, -2)}),
+])
+anim("eat", [
+    F(arm={"el": (1, -2), "paw": (2, -7)}, farm={"el": (1, -2), "paw": (2, -6)}, head=(0, 1)),
+    F(arm={"el": (1, -2), "paw": (2, -8)}, farm={"el": (1, -2), "paw": (2, -7)}, head=(0, 1), mouth="open"),
+    F(arm={"el": (1, -2), "paw": (2, -7)}, farm={"el": (1, -2), "paw": (2, -6)}, head=(0, 2)),
+    F(arm={"el": (1, -2), "paw": (2, -8)}, farm={"el": (1, -2), "paw": (2, -7)}, head=(0, 1), mouth="open", tail=-1),
+])
+CURL = dict(crouch=4, lean=-1, head=(-1, 5), ear=3, tail=1, arm={"el": (-1, 2), "paw": (-6, -2)},
+            farm={"el": (-1, 2), "paw": (-6, -2)})
+anim("sleep", [F(**CURL, eyes="closed"), F(**CURL, eyes="closed", bob=1)])
+anim("tired", [
+    F(crouch=3, lean=2, head=(0, 2), ear=2, eyes="half", arm={"el": (0, 3), "paw": (-3, 6)}, tail=1),
+    F(crouch=4, lean=2, head=(0, 3), ear=2, eyes="half", arm={"el": (0, 3), "paw": (-3, 7)}, tail=1),
+])
+anim("petted", [
+    F(head=(-1, -1), lean=-1, eyes="happy", ear=2, tail=-1),
+    F(head=(-1, -2), lean=-1, eyes="happy", ear=3, tail=-2, bob=-1),
+    F(head=(-1, -1), lean=-1, eyes="happy", ear=2, tail=0),
+])
+KO = dict(crouch=9, lean=5, head=(0, 6), ear=3, eyes="ko", arm={"el": (0, 5), "paw": (-2, 9)},
+          farm={"el": (0, 5), "paw": (-2, 9)}, tail=2)
+anim("knocked_out", [
+    F(lean=-2, head=(-1, 0), eyes="ko", ear=3, arm={"el": (-2, 2), "paw": (-5, 4)}),
+    F(crouch=5, lean=2, head=(0, 3), eyes="ko", ear=3, arm={"el": (0, 3), "paw": (-2, 6)}),
+    F(**KO),
+])
+anim("knocked_out_loop", [F(**KO), F(**{**KO, "ear": 2, "tail": 1})])
+anim("working", [  # hammering; the hammer is a separate sprite on the hand point
+    F(arm=BACK, ear=1),
+    F(arm=UP_N, lean=-1, ear=1),
+    F(crouch=1, lean=2, arm={"el": (1, -1), "paw": (4, 1)}, eyes="half"),
+    F(arm={"el": (0, -2), "paw": (0, -4)}),
+])
+HUG = {"el": (1, 0), "paw": (0, -3)}
+anim("carry", [F(bob=-1 if i % 2 else 0, arm=HUG, farm=HUG, head=(0, -1), leg=STEP[i * 3 // 2 % 6],
+                 fleg=STEP[(i * 3 // 2 + 3) % 6], tail=-1 if i % 2 else 0) for i in range(4)])
+anim("cheer", [
+    F(crouch=2, eyes="wide", arm={"el": (0, 2), "paw": (-1, 2)}),
+    F(lean=-2, eyes="wide", mouth="open", arm=REACH, farm={"el_at": (41, 15), "paw_at": (47, 7)}, tail=-2, cowl=-1),
+    F(lean=-2, bob=-1, eyes="happy", mouth="open", arm=UP_N, farm=UP_F, tail=-3, cowl=-2),
+    F(lean=-1, eyes="wide", arm={"el": (0, -3), "paw": (0, -6)}, tail=-1),
+])
+anim("catch", [
+    F(crouch=2, head=(0, 1)),
+    F(off=(0, -4), lean=-2, head=(0, -1), mouth="open", arm=REACH, farm={"el_at": (41, 15), "paw_at": (47, 7)},
+      leg={"heel": (0, -1), "toe": (0, -1)}, cowl=-2, tail=-2),
+    F(crouch=1, arm={"el": (1, -2), "paw": (1, -4)}),
+])
+
+# ---- Fights: claws ----
+GUARD = {"el": (1, -1), "paw": (1, -3)}
+anim("battle_stance", [F(crouch=2, lean=1, head=(0, 1), ear=2, arm=GUARD, tail=-1 - (i % 2),
+                         bob=-1 if i in (1, 2) else 0, cowl=-1 if i in (2, 3) else 0) for i in range(4)])
+anim("basic_attack", [
+    F(off=(-1, 0), crouch=2, lean=-1, ear=2, arm={"el": (-3, -3), "paw": (-7, -6)}),
+    F(off=(2, 0), lean=2, ear=2, arm={"el": (3, -2), "paw": (8, -2)}, mouth="open", cowl=1),
+    F(off=(3, 0), lean=3, ear=2, arm={"el": (3, 1), "paw": (7, 4)}, cowl=1),
+    F(off=(1, 0), crouch=1, lean=1, ear=2, arm={"el": (1, 0), "paw": (2, 0)}),
+    F(crouch=2, lean=1, head=(0, 1), ear=2, arm=GUARD),
+])
+anim("signature", [  # shadow-dash leap and double claw (the smoke trail is an effect)
+    F(crouch=4, lean=2, ear=3, eyes="wide", arm={"el": (-2, 2), "paw": (-5, 3)}, tail=-2),
+    F(off=(-1, 0), crouch=5, lean=3, ear=3, eyes="wide", arm={"el": (-3, 2), "paw": (-7, 3)}, tail=-3),
+    F(off=(3, -5), lean=3, ear=3, eyes="wide", mouth="open", arm={"el": (3, -2), "paw": (8, -3)},
+      farm={"el": (3, -2), "paw": (8, -2)}, leg={"heel": (-3, -1), "toe": (-3, -1)},
+      fleg={"heel": (-3, -1), "toe": (-3, -1)}, cowl=2),
+    F(off=(5, -3), lean=3, ear=3, eyes="wide", arm={"el": (3, 2), "paw": (7, 5)}, farm={"el": (3, 2), "paw": (7, 6)},
+      cowl=2),
+    F(off=(5, 0), crouch=3, lean=3, ear=2, arm={"el": (2, 3), "paw": (5, 7)}),
+    F(off=(2, 0), crouch=2, lean=1, ear=2, arm=GUARD),
+])
+anim("flinch", [
+    F(off=(-2, 0), lean=-3, head=(-1, 0), eyes="closed", ear=3, arm={"el": (-1, -1), "paw": (-2, -3)}, tail=1),
+    F(off=(-1, 0), lean=-1, eyes="half", ear=2, arm=GUARD),
+])
+anim("dodge", [
+    F(off=(-1, 0), crouch=3, ear=2, arm=GUARD),
+    F(off=(-5, -4), lean=-2, ear=3, arm={"el": (0, -2), "paw": (1, -5)},
+      leg={"heel": (1, -1), "toe": (1, -1)}, fleg={"heel": (1, -1), "toe": (1, -1)}, cowl=2, tail=-2),
+    F(off=(-6, 0), crouch=2, ear=1, arm=GUARD),
+])
+anim("knockout", [
+    F(off=(-2, 0), lean=-3, head=(-1, 0), eyes="ko", ear=3, arm={"el": (-2, 2), "paw": (-5, 4)}),
+    F(off=(-2, 0), crouch=4, lean=1, eyes="ko", ear=3, arm={"el": (0, 3), "paw": (-2, 6)}),
+    F(off=(-2, 0), crouch=7, lean=4, head=(0, 4), eyes="ko", ear=3, arm={"el": (0, 4), "paw": (-2, 8)}),
+    F(**{**KO, "off": (-2, 0)}),
+])
+
+# ---- Game poses (adult: athletic run, full hammer swings, bar-fight punches) ----
+RUN = [({"knee": (2, -2), "heel": (3, -3), "toe": (5, -2)}, {"heel": (-4, 0), "toe": (-4, 0)}),
+       ({"knee": (1, -1), "heel": (1, -1), "toe": (3, 0)}, {"knee": (0, -1), "heel": (-3, -2), "toe": (-2, -2)}),
+       ({"heel": (-1, 0), "toe": (0, 0)}, {"knee": (1, -2), "heel": (0, -3), "toe": (2, -2)}),
+       ({"heel": (-4, 0), "toe": (-4, 0)}, {"knee": (2, -2), "heel": (3, -3), "toe": (5, -2)}),
+       ({"knee": (0, -1), "heel": (-3, -2), "toe": (-2, -2)}, {"knee": (1, -1), "heel": (1, -1), "toe": (3, 0)}),
+       ({"knee": (1, -2), "heel": (0, -3), "toe": (2, -2)}, {"heel": (-1, 0), "toe": (0, 0)})]
+anim("run", [F(lean=3, head=(0, 1), ear=2, bob=-1 if i in (1, 4) else 0, leg=RUN[i][0], fleg=RUN[i][1],
+               arm={"el": (2 - (i % 3) * 2, 0), "paw": (4 - (i % 3) * 4, 1)},
+               farm={"el": ((i % 3) * 2 - 2, 0), "paw": ((i % 3) * 4 - 4, 1)},
+               cowl=1 + (i % 2), tail=-(i % 2)) for i in range(6)])
+anim("jump", [
+    F(crouch=4, lean=2, ear=2, arm={"el": (-2, 1), "paw": (-4, 2)}),
+    F(off=(0, -6), lean=1, ear=3, arm={"el": (2, -4), "paw": (5, -8)}, farm={"el": (2, -3), "paw": (5, -6)},
+      leg={"knee": (2, -3), "heel": (0, -4), "toe": (3, -3)}, fleg={"heel": (-3, -1), "toe": (-3, -1)}, cowl=2, tail=-2),
+    F(crouch=3, lean=2, ear=1, arm={"el": (1, 1), "paw": (2, 2)}),
+])
+anim("vine_swing", [
+    F(off=(0, -2), lean=-2 + dx, arm={"el_at": (34 + dx, 13), "paw_at": (36 + dx, 3.5)},
+      leg={"heel": (-dx - 1, -2), "toe": (-dx - 1, -3)}, fleg={"heel": (-dx, -1), "toe": (-dx, -2)},
+      cowl=s, tail=s, ear=2) for dx, s in ((-1, 0), (0, 1), (1, 2), (0, 1))
+])
+anim("fall", [
+    F(off=(0, -3), lean=-3, eyes="wide", mouth="open", ear=3, arm=BACK,
+      farm={"el_at": (41, 15), "paw_at": (48, 9)}, leg={"heel": (2, -2), "toe": (3, -2)}, cowl=-2, tail=-3),
+    F(lean=-2, eyes="wide", mouth="open", ear=3, arm={"el": (-2, -5), "paw": (-4, -9)},
+      farm={"el": (3, -4), "paw": (6, -7)}, cowl=-3, tail=-2),
+    F(crouch=7, lean=4, head=(0, 3), eyes="ko", ear=3, arm={"el": (0, 4), "paw": (-2, 7)}),
+])
+anim("swing_right", [
+    F(lean=-1, arm=BACK, ear=1),
+    F(lean=1, arm=UP_N, ear=2),
+    F(off=(1, 0), lean=3, arm={"el": (3, -1), "paw": (9, 0)}, ear=2, eyes="half", cowl=1),
+    F(lean=1, arm={"el": (1, 0), "paw": (3, 1)}),
+])
+anim("swing_left", [
+    F(lean=1, arm={"el": (2, 0), "paw": (4, -1)}),
+    F(lean=-1, arm={"el": (-2, -2), "paw": (-6, -3)}, ear=1, tail=-1),
+    F(lean=-3, arm={"el": (-5, -1), "paw": (-13, -2)}, ear=2, eyes="half", tail=-2, cowl=-1),
+    F(lean=-1, arm={"el": (-1, 0), "paw": (-3, 0)}),
+])
+anim("swing_up", [
+    F(crouch=2, arm={"el": (1, 2), "paw": (3, 4)}),
+    F(lean=-1, arm={"el": (1, -3), "paw": (4, -6)}, ear=1),
+    F(lean=-3, bob=-1, arm={"el_at": (34, 13), "paw_at": (37, 3)}, ear=2, eyes="half", cowl=-1),
+    F(lean=-1, arm=REACH),
+])
+anim("swing_down", [
+    F(lean=-2, arm=BACK, ear=1),
+    F(lean=-1, arm=UP_N, ear=1),
+    F(crouch=3, lean=4, head=(0, 2), arm={"el": (3, 3), "paw": (6, 10)}, ear=2, eyes="half"),
+    F(crouch=1, lean=2, arm={"el": (1, 1), "paw": (3, 3)}),
+])
+FISTS = ({"el": (2, -2), "paw": (2, -5)}, {"el": (2, -3), "paw": (3, -6)})
+anim("brawl_stance", [F(crouch=2, lean=1, head=(0, 1), ear=2, arm=FISTS[0], farm=FISTS[1],
+                        bob=[0, -1, 0][i], tail=-1 - (i % 2)) for i in range(3)])
+anim("parry", [
+    F(ear=2, arm={"el": (2, -5), "paw": (4, -9)}, farm=FISTS[1]),
+    F(off=(1, 0), lean=1, ear=3, eyes="half", arm={"el": (3, -6), "paw": (6, -11)}, farm={"el": (3, -5), "paw": (5, -9)}),
+    F(crouch=1, lean=1, ear=2, arm=FISTS[0], farm=FISTS[1]),
+])
+anim("counter_a", [  # straight jab
+    F(crouch=2, ear=2, arm={"el": (0, -1), "paw": (-2, -3)}, farm=FISTS[1]),
+    F(off=(2, 0), lean=3, ear=3, arm={"el": (4, -3), "paw": (10, -4)}, farm=FISTS[1], mouth="open"),
+    F(off=(1, 0), lean=1, ear=2, arm=FISTS[0], farm=FISTS[1]),
+])
+anim("counter_b", [  # rising uppercut
+    F(crouch=4, lean=2, ear=2, arm={"el": (0, 2), "paw": (2, 4)}, farm=FISTS[1]),
+    F(off=(2, -2), lean=-1, ear=3, arm=REACH, farm=FISTS[1], mouth="open", cowl=-1),
+    F(off=(1, 0), lean=1, ear=2, arm=FISTS[0], farm=FISTS[1]),
+])
+anim("take_hit", [
+    F(off=(-2, 0), lean=-3, head=(-1, 0), eyes="closed", ear=3, arm={"el": (-1, -1), "paw": (-2, -2)}, tail=1),
+    F(off=(-1, 0), crouch=1, lean=-1, eyes="half", ear=2, arm=FISTS[0], farm=FISTS[1]),
+])
+anim("victory_taunt", [
+    F(lean=-2, eyes="happy", mouth="open", arm=REACH, tail=-2),
+    F(lean=-2, bob=-1, eyes="happy", mouth="open", arm=UP_N, tail=-3, cowl=-1),
+    F(lean=-2, eyes="happy", arm=REACH, tail=-2),
+])
+anim("guard_stance", [F(crouch=3, lean=1, head=(0, 1), ear=2, arm={"el": (2, -3), "paw": (4, -6)},
+                        farm=FISTS[1], bob=[0, -1, -1][i], tail=-1, cowl=-(i % 2)) for i in range(3)])
+anim("stirring", [
+    F(lean=2, head=(0, 1), arm={"el": (2, 2), "paw": (4, 5)}),
+    F(lean=2, head=(0, 1), arm={"el": (3, 2), "paw": (7, 4)}, ear=1),
+    F(lean=2, head=(0, 1), arm={"el": (2, 3), "paw": (5, 7)}, tail=-1),
+])
+anim("concentrating", [
+    F(lean=-1, eyes="wide", arm={"el": (1, -2), "paw": (2, -5)}, farm={"el": (1, -2), "paw": (2, -4)}),
+    F(lean=-1, bob=-1, eyes="wide", ear=-1, arm={"el": (1, -2), "paw": (2, -5)}, farm={"el": (1, -2), "paw": (2, -4)}),
+])
+
 data = {
     "width": W, "height": H, "fps": 10, "palette": PAL,
     "dye_zones": {"main_fur": ["1", "2", "3", "4"], "accent_fur": ["5", "6", "7", "8"],
                   "eye_glow": ["e", "E", "f", "F"], "smoke": ["s", "S", "t", "T"]},
+    # head / hand / torso: gear and hats snap here. aim: forearm angle in degrees
+    # (0 = right, 90 = down) for picking a weapon rotation. root_dx: px the game moves him.
     "attach": {k: [a for _, a in v] for k, v in A.items()},
     "animations": {k: [r for r, _ in v] for k, v in A.items()},
 }
