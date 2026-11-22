@@ -6,6 +6,7 @@ _Last updated 2026-11-21, after George approved the baby look._
 - **Design is finished.** It was planned over two long Q&A sessions with George (one for the game, one for the art). Every v1 decision is in `BUILD_SPEC.md` (game) and `ART_BRIEF.md` (art). There are no open questions.
 - **Art pipeline is set up:** the project skill `.claude/skills/pixel-art` (house style built in), the renderer `tools/render.py`, and a generator example `tools/build_baby.py`.
 - **Baby look approved (2026-11-21):** baby Skerbie idle [4] + blink [2] at `art/out/skerbie/` (`baby_skerbie_test.gif`, sheet, frames.json), source grid `art/source/skerbie/baby.json`, built by `tools/build_baby.py`. George asked for it **more angular and aggressive** than the first round version: straight-edged shapes with flat faceted shading, a low pounce-ready crouch, a wedge head with one fang, tall sharp ears, raised accent-fur hackles, narrowed glaring eyes and a spiked stub tail. `ART_BRIEF.md` §4 was updated to match. **This style is locked for everything else.**
+- **Egg drawn (SKB-EGG, awaiting George's OK):** wobble [3], crack [4], hatch [5] at `art/out/skerbie/egg/`, built by `tools/build_egg.py`. A faceted charcoal shell with red ember cracks; the hatch ends with his ear tips and glaring eyes peeking over the broken rim. Wobble is lean-left / upright / lean-right, so play it back and forth (ping-pong).
 - **No game code exists yet.** The repo is empty apart from these docs and art files.
 
 ## George's key decisions (quick reference; the spec has the details)
