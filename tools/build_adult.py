@@ -66,8 +66,10 @@ if JUG:  # wider stance, shoulders set forward, huge forearms that widen toward 
     }
     ARM_W = (8.5, 6.5, 9, 8, 6.5)
     LEG_W = (11, 7.5, 6.5, 5.5, 5.6, 4.6, 3.6)
-if OCC:  # sleeves: narrow at the shoulder, flaring into wide bell cuffs; slender paws
-    ARM_W = (6, 6, 9, 4.6, 3.4)
+if OCC:  # sleeves: narrow at the shoulder, flaring into bell cuffs; slender paws held before the chest
+    ARM_W = (5, 5, 8, 4.2, 3.2)
+    REST = dict(REST, arm={"sh": (33, 23), "el": (34, 31.5), "paw": (39.5, 33.5)},
+                farm={"sh": (36.5, 22), "el": (38, 30.5), "paw": (42.5, 32)})
 EYES = {  # '.' leaves the fur underneath
     "open":   ["ooo...", "eEEoo.", "EEEEEo", ".ffffF"],
     "half":   ["ooo...", "oooooo", "EEEEEo", ".ffffF"],
@@ -140,10 +142,15 @@ def frame(bob=0, crouch=0, lean=0, head=(0, 0), ear=0, tail=0, cowl=0, eyes="ope
             g[p] = (ACC if r is True else r if r else ramp)[t]
             layer[p], order[p] = part, z[0]
 
-    by = bob + crouch + (3 if OCC else 0)           # the Occultist sits 3 px lower so his tall ears fit
+    by = bob + crouch
+    if OCC:
+        lean -= 2  # the Occultist stands tall and straight: chest and head pulled back over his hips
     up = (lean, by)                                 # chest and shoulders
     # Head offset in whole pixels (the eye and mouth are stamped on the grid; snout stays in frame).
     hx, hy = round(min(head[0], 1) + lean), round(head[1] + by)
+    if OCC:  # a longer neck and body under the same head: he reads tall and slender
+        by += 3
+        up = (lean, by)
     lift = hy + off[1]
     flat = max(0, ear - 1) * 0.6
     if lift + flat < -1:                            # head raised: pin ears back inside the frame
@@ -198,8 +205,8 @@ def frame(bob=0, crouch=0, lean=0, head=(0, 0), ear=0, tail=0, cowl=0, eyes="ope
     if JUG:  # short, thick ears set lower
         far_ear = [(35, 9), (42.5, 5.5), (33 + e, 0.5 + e * 0.5 + fy)]
     elif OCC:  # tall and nearly upright
-        far_ear = [(34, 10), (40, 6.5), (30.5 - e * 2, -3 + e * 0.6 + fy)]
-        near_ear = [(34.5, 9.5), (41.5, 5.5), (33.5 - e * 2, -3.5 + e * 0.6 + fy)]
+        far_ear = [(34, 10), (40, 6.5), (31 - e * 2, 0 + e * 0.6 + fy)]
+        near_ear = [(34.5, 9.5), (41.5, 5.5), (34 - e * 2, -0.5 + e * 0.6 + fy)]
         glow_tips = [(mv([near_ear[2]], hx, hy)[0], "ear", 0), (mv([far_ear[2]], hx, hy)[0], "far", 1)]
     else:
         far_ear = [(36, 7.5), (43, 3.5), (30.5 + e, -0.5 + e * 0.5 + fy)]
@@ -241,20 +248,24 @@ def frame(bob=0, crouch=0, lean=0, head=(0, 0), ear=0, tail=0, cowl=0, eyes="ope
     if OCC:
         # The robe: from the shoulders down past his hidden legs to a tattered hem that
         # hangs clear of the ground (he floats). The hem sways with his "steps" and the cowl dial.
+        # A slim, straight column of robe; the hem ends well above the ground (he levitates).
         s = (leg or {}).get("toe", (0, 0))[0] * 0.4 + cowl * 0.5
-        robe = [(24, 21, 1), (31, 18, 1), (38, 19, 1), (41, 25, 1), (42, 36, 0.6), (45, 47, 0.3),
-                (47 + s, 55, 0), (43 + s, 53.5, 0), (40 + s, 56, 0), (36 + s, 54, 0), (32 + s, 56.5, 0),
-                (28 + s, 54, 0), (24 + s, 56, 0), (20 + s, 53.5, 0), (16 + s, 55, 0), (17, 46, 0.3),
-                (20, 36, 0.6), (22, 28, 1)]
+        robe = [(26, 21, 1), (31, 18, 1), (37.5, 19, 1), (40, 25, 1), (40, 34, 0.6), (41, 44, 0.3),
+                (42 + s, 51, 0), (39.5 + s, 49.5, 0), (37 + s, 52, 0), (34 + s, 50, 0), (31 + s, 52.5, 0),
+                (28.5 + s, 50, 0), (26 + s, 52, 0), (23.5 + s, 50, 0), (22 + s, 51, 0), (23, 42, 0.3),
+                (24.5, 32, 0.6), (25, 26, 1)]
         paint([(x + lean * k, y + by) for x, y, k in robe], "robe", ROBE)
         # The robe opens in a V at the chest, showing fur (where his sigils glow).
-        paint(mv([(34, 19), (39.5, 20), (38, 31), (36, 34)], *up), "body", acc=lambda p: True)
+        paint(mv([(33.5, 19), (38.5, 20), (37, 30), (35.5, 32)], *up), "body", acc=lambda p: True)
     else:
         # Near leg.
         leg_paint(REST["leg"], leg, "leg")
     # Neck, halfway between chest and head.
-    neck = [(31, 14), (39, 13), (41, 21), (31.5, 23)] if JUG else [(32, 14), (38, 13), (39.5, 20), (32.5, 22)]
-    paint(mv(neck, (lean + hx) / 2, (by + hy) / 2), "body")
+    if OCC:  # the long neck spans from the head down to the (lowered) shoulders
+        paint([(32 + hx, 12 + hy), (38.5 + hx, 11 + hy), (39.5 + lean, 20 + by), (32.5 + lean, 22 + by)], "body")
+    else:
+        neck = [(31, 14), (39, 13), (41, 21), (31.5, 23)] if JUG else [(32, 14), (38, 13), (39.5, 20), (32.5, 22)]
+        paint(mv(neck, (lean + hx) / 2, (by + hy) / 2), "body")
     if JUG:  # thick, shaggy grey mane over the shoulders, neck and upper back
         paint(mv([(17, 25), (13, 21), (18.5, 19.5), (16, 14), (22, 15), (22.5, 9), (27.5, 12), (30, 6.5),
                   (33, 10.5), (37.5, 8), (37, 13), (42, 13.5), (39.5, 18.5), (43.5, 21.5), (37.5, 22),
@@ -269,7 +280,7 @@ def frame(bob=0, crouch=0, lean=0, head=(0, 0), ear=0, tail=0, cowl=0, eyes="ope
                   (34, 23), (27.5, 24), (26, 20)], hx, hy), "hood", CLOTH)
     if OCC:
         paint(mv(near_ear, hx, hy), "ear",
-              acc=lambda p: inside(mv([(36, 8.5), (39.5, 6.5), (34.5 - e * 2, 1 + e * 0.6 + fy)], hx, hy), *p))
+              acc=lambda p: inside(mv([(36, 8.5), (39.5, 6.5), (35 - e * 2, 3.5 + e * 0.6 + fy)], hx, hy), *p))
     elif JUG:
         paint(mv([(34, 9.5), (42.5, 6), (31 + e, 0 + e * 0.5 + fy)], hx, hy), "ear",
               acc=lambda p: inside(mv([(35.8, 8.2), (40, 6.5), (33 + e, 2.2 + e * 0.4 + fy)], hx, hy), *p))
