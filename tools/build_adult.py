@@ -1,5 +1,5 @@
 # Builds the adult Skerbie forms (64x64), all 37 animations, as pixel grids -> JSON.
-# Usage: python tools/build_adult.py stalker|juggernaut [--look]   (--look: idle + blink only)
+# Usage: python tools/build_adult.py stalker|juggernaut|occultist|warden [--look]   (--look: idle + blink only)
 #        python tools/render.py art/source/skerbie/adult_stalker.json --out art/out/skerbie/adult_stalker
 #
 # Same angular house style as the approved baby and kids: straight-edged polygons,
@@ -20,16 +20,15 @@ assert FORM in FORMS, f"form must be one of {FORMS}"
 JUG = FORM == "juggernaut"
 OCC = FORM == "occultist"
 WAR = FORM == "warden"
-#   warden (SKB-AD-BAL): upright, cloaked and watchful. Revised with George (2026-11-22):
-#   he floats (legs hanging toes-down), medium build with sleek, swept lines that imply
-#   speed, a slim slate cape streaming back from his shoulders, brighter glowing eyes, and
-#   a crackling static-electricity aura (a separate effect: tools/build_static_aura.py).
-#   An original design: the mood George asked for, not any existing character's shapes.
-#   occultist (SKB-AD-MND): upright, robed and floating. A long dusky-purple robe (never
-#   dyed; muted shadow purple, not Mind-magic purple) hides his legs and hangs clear of
-#   the ground; wide bell sleeves; tall upright ears with glowing tips in the eye-glow
-#   zone (the Mind kid's, grown up); glowing sigils in his fur (accent zone); a long thin
-#   tail. His halo of smoke is a separate effect sprite.
+#   occultist (SKB-AD-MND), chosen by George (2026-11-22): he floats (legs hanging
+#   toes-down), medium build with sleek, swept lines, a slim slate cape streaming back from
+#   his shoulders, brighter glowing eyes, and a crackling static-electricity aura (a
+#   separate effect: tools/build_static_aura.py). (This began as a Warden redesign; George
+#   made it the Mind adult. The earlier battle-robe Occultist is in git history, d2d0004.)
+#   warden (SKB-AD-BAL), George (2026-11-22): the perfect warrior, made on purpose. Dark-
+#   fantasy forged: iron plates bolted onto him (chest plate, shoulder pauldron, forearm
+#   bracers, hip plates, a collar with a brand plate), glowing rune-etched bindings in his
+#   eye-glow zone, an upright disciplined stance, an alert ear set and an iron tail band.
 #   juggernaut (SKB-AD-STR): upright and hulking, a heavy grounded stance, massive
 #   forearms in worn cloth wraps (the Strength kid's wraps grown up), a shaggy grey mane
 #   and scarred grey fur (both accent zone), short spiked tail.
@@ -45,18 +44,16 @@ PAL = {
 if FORM == "stalker":
     PAL.update({"i": "#5a5e66",                                       # blade iron (never dyed)
                 "j": "#4d5e7a", "k": "#3b4a63", "l": "#2a3448"})      # hood/cowl, slate (never dyed)
-if WAR:
+if OCC:
     PAL.update({"j": "#4d5e7a", "k": "#3b4a63", "l": "#2a3448"})      # cape, slate (never dyed)
 if JUG:
     PAL.update({"q": "#bfae8c", "r": "#a8945e", "u": "#8b7a4a"})      # forearm wraps, worn cloth (never dyed)
-if OCC:
-    PAL.update({"m": "#4a3a5c", "n": "#3a2d4a", "v": "#2a2036",       # battle coat, dusky purple (never dyed)
-                "x": "#2c5560", "y": "#1f3d44", "z": "#17151c",       # pants, deep teal (never dyed)
-                "b": "#3b2a22"})                                      # belt, dark wood leather (never dyed)
+if WAR:
+    PAL.update({"i": "#5a5e66", "h": "#33303d", "d": "#23212b"})      # forged iron: base, shadow, deep (never dyed)
 LX, LY = -0.6, -0.8  # light from top-left
 N4 = ((1, 0), (-1, 0), (0, 1), (0, -1))
-FUR, ACC, CLOTH, BLADE, WRAP, ROBE, GLOW = "1234", "5678", "jkll", "wwii", "qruu", "mnvv", "eEfF"
-PANTS, BELT = "xxyz", "bbbb"
+FUR, ACC, CLOTH, BLADE, WRAP, GLOW = "1234", "5678", "jkll", "wwii", "qruu", "eEfF"
+IRON = "wiih"  # silver highlight on the lit edge, iron, iron, charcoal shadow: reads as metal against fur
 
 REST = {
     "arm":  {"sh": (33, 23), "el": (35, 32.5), "paw": (41.5, 37)},
@@ -77,19 +74,16 @@ if JUG:  # wider stance, shoulders set forward, huge forearms that widen toward 
     }
     ARM_W = (8.5, 6.5, 9, 8, 6.5)
     LEG_W = (11, 7.5, 6.5, 5.5, 5.6, 4.6, 3.6)
-if WAR:  # medium, sleek build; he floats, so his legs hang with the toes pointing down
+if OCC:  # medium, sleek build; he floats, so his legs hang with the toes pointing down
     ARM_W = (6.4, 4.8, 4, 5, 3.6)
     LEG_W = (8.5, 5.8, 5.2, 4, 4.4, 3.6, 2.8)
     REST = dict(REST, leg={"hip": (27, 38.5), "knee": (32, 47), "heel": (28, 53.5), "toe": (32, 59)},
                 fleg={"hip": (31, 38), "knee": (36, 46.5), "heel": (32, 53), "toe": (36, 58.5)})
-if OCC:  # sleeves: narrow at the shoulder, flaring into bell cuffs; slender paws held before the chest
-    ARM_W = (5, 5, 8, 4.2, 3.2)
-    # Legs hang below him as he floats: knees soft, heels lifted, toes pointing down.
-    REST = dict(REST, arm={"sh": (33, 23), "el": (34, 31.5), "paw": (39.5, 33.5)},
-                farm={"sh": (36.5, 22), "el": (38, 30.5), "paw": (42.5, 32)},
-                leg={"hip": (28, 38), "knee": (32.5, 47), "heel": (28.5, 53.5), "toe": (32.5, 58.5)},
-                fleg={"hip": (32, 37.5), "knee": (36.5, 46.5), "heel": (32.5, 53), "toe": (36.5, 58)})
-    LEG_W = (7.5, 5.5, 5, 4, 4, 3.4, 2.6)
+if WAR:  # athletic and balanced: a little heavier than the Stalker, feet planted square
+    ARM_W = (7, 5.4, 4.6, 5.4, 4)
+    LEG_W = (9, 6.2, 5.4, 4.4, 4.8, 3.8, 3)
+    REST = dict(REST, leg={"hip": (26.5, 38.5), "knee": (31.5, 48), "heel": (25.5, 56), "toe": (34, 62)},
+                fleg={"hip": (31.5, 38), "knee": (37, 47.5), "heel": (31.5, 55.5), "toe": (40, 62)})
 EYES = {  # '.' leaves the fur underneath
     "open":   ["ooo...", "eEEoo.", "EEEEEo", ".ffffF"],
     "half":   ["ooo...", "oooooo", "EEEEEo", ".ffffF"],
@@ -163,16 +157,11 @@ def frame(bob=0, crouch=0, lean=0, head=(0, 0), ear=0, tail=0, cowl=0, eyes="ope
             layer[p], order[p] = part, z[0]
 
     by = bob + crouch
-    if OCC:
-        lean -= 2  # the Occultist stands tall and straight: chest and head pulled back over his hips
-    if WAR:
-        lean -= 1  # the Warden stands steady and watchful, straighter than the Stalker
+    if OCC or WAR:
+        lean -= 1  # both stand straighter than the Stalker: the Occultist poised, the Warden disciplined
     up = (lean, by)                                 # chest and shoulders
     # Head offset in whole pixels (the eye and mouth are stamped on the grid; snout stays in frame).
     hx, hy = round(min(head[0], 1) + lean), round(head[1] + by)
-    if OCC:  # a longer neck and body under the same head: he reads tall and slender
-        by += 3
-        up = (lean, by)
     lift = hy + off[1]
     flat = max(0, ear - 1) * 0.6
     if lift + flat < -1:                            # head raised: pin ears back inside the frame
@@ -203,9 +192,10 @@ def frame(bob=0, crouch=0, lean=0, head=(0, 0), ear=0, tail=0, cowl=0, eyes="ope
             wide = we + (ww - we) * 0.72
             paint([seg(sh, el, wu, we), seg(el, mid, we, wide)], part, dark=dark)
             paint([seg(mid, pw, wide, ww, 0.2), seg(pw, tip, pa, pb, 0.4)], part, WRAP, dark=dark)
-        elif OCC:  # robe sleeve from shoulder to a wide bell cuff, slender paw out of it
-            paint([seg(sh, el, wu, we), seg(el, pw, we, ww, 0.3)], part, ROBE, dark=dark)
-            paint(seg(pw, tip, pa, pb, 0.4), part, dark=dark)
+        elif WAR:  # fur arm with a forged iron bracer bolted over the forearm
+            mid = (el[0] + (pw[0] - el[0]) * 0.25, el[1] + (pw[1] - el[1]) * 0.25)
+            paint([seg(sh, el, wu, we), seg(el, pw, we, ww), seg(pw, tip, pa, pb, 0.4)], part, dark=dark)
+            paint(seg(mid, pw, we + 1.4, ww + 1.4, 0.2), "iron" if part == "arm" else part, IRON, dark=dark)
         else:
             paint([seg(sh, el, wu, we), seg(el, pw, we, ww), seg(pw, tip, pa, pb, 0.4)], part, dark=dark)
 
@@ -217,9 +207,9 @@ def frame(bob=0, crouch=0, lean=0, head=(0, 0), ear=0, tail=0, cowl=0, eyes="ope
         toe = add(rest["toe"], pose.get("toe", (0, 0)))
         ball = (toe[0] - 3, toe[1] - 1)
         t1, t2, s1, s2, f1, f2, f3 = LEG_W
-        if OCC or WAR:  # floating: the foot hangs and points down (Occultist: cloth pants to the ankle)
+        if OCC:  # floating: the foot hangs and points down
             ball = (toe[0] - 1.5, toe[1] - 2.5)
-            paint([seg(hip, kn, t1, t2), seg(kn, heel, s1, s2)], part, PANTS if OCC else FUR, dark=dark)
+            paint([seg(hip, kn, t1, t2), seg(kn, heel, s1, s2)], part, dark=dark)
             paint([seg(heel, ball, f1, f2, 0.4), seg(ball, toe, f2, f3, 0.6)], part, dark=dark)
             return
         paint([seg(hip, kn, t1, t2),               # thigh
@@ -231,12 +221,10 @@ def frame(bob=0, crouch=0, lean=0, head=(0, 0), ear=0, tail=0, cowl=0, eyes="ope
     # Far side, one shade darker.
     if JUG:  # short, thick ears set lower
         far_ear = [(35, 9), (42.5, 5.5), (33 + e, 0.5 + e * 0.5 + fy)]
-    elif WAR:  # long and swept back, sleek
+    elif OCC:  # long and swept back, sleek
         far_ear = [(35.5, 8), (43, 3.5), (29 + e, 0 + e * 0.5 + fy)]
-    elif OCC:  # tall and nearly upright
-        far_ear = [(34, 10), (40, 6.5), (31 - e * 2, 0 + e * 0.6 + fy)]
-        near_ear = [(34.5, 9.5), (41.5, 5.5), (34 - e * 2, -0.5 + e * 0.6 + fy)]
-        glow_tips = [(mv([near_ear[2]], hx, hy)[0], "ear", 0), (mv([far_ear[2]], hx, hy)[0], "far", 1)]
+    elif WAR:  # alert: shorter and held up, between swept and upright
+        far_ear = [(35.5, 8.5), (42.5, 4.5), (32.5 + e, -0.5 + e * 0.6 + fy)]
     else:
         far_ear = [(36, 7.5), (43, 3.5), (30.5 + e, -0.5 + e * 0.5 + fy)]
     paint(mv(far_ear, hx, hy), "far", dark=1)
@@ -254,7 +242,9 @@ def frame(bob=0, crouch=0, lean=0, head=(0, 0), ear=0, tail=0, cowl=0, eyes="ope
         if OCC or WAR:  # the same long tail with an accent-fur tip, no blade
             paint([seg(mv([knots[i]], 0, by)[0], mv([knots[i + 1]], 0, by)[0], widths[i], widths[i + 1])
                    for i in range(len(knots) - 1)], "tail", acc=lambda p: p[1] <= 31 + by)
-            if WAR:  # a slim cape streaming back from his shoulders in two long points; sways with "cowl"
+            if WAR:  # a forged iron band clamped around the tail
+                paint(seg(mv([(8.5 + t * 0.5, 38.5)], 0, by)[0], mv([(8 + t * 0.5, 35)], 0, by)[0], 5.4, 5), "iron", IRON)
+            if OCC:  # a slim cape streaming back from his shoulders in two long points; sways with "cowl"
                 c = cowl
                 cape = [(25, 19, 1), (32, 16.5, 1), (33, 23, 0.9), (29, 29, 0.7), (21 + c, 40 + c, 0.4),
                         (22.5, 33, 0.6), (13 + c * 1.5, 37 + c, 0.5), (19, 27, 0.8), (21.5, 21, 1)]
@@ -280,30 +270,18 @@ def frame(bob=0, crouch=0, lean=0, head=(0, 0), ear=0, tail=0, cowl=0, eyes="ope
     paint([(x + lean * k, y + by) for x, y, k in torso], "body", acc=lambda p: inside(chest, *p))
     # Near leg.
     leg_paint(REST["leg"], leg, "leg")
-    if OCC:
-        # A fitted battle coat to mid-thigh, split at the front so his legs move freely,
-        # with longer tattered tails at the back that sway with his steps and the cowl dial.
-        s = (leg or {}).get("toe", (0, 0))[0] * 0.3 + cowl * 0.6
-        coat = [(26, 21, 1), (31, 18, 1), (37.5, 19, 1), (40, 25, 1), (40, 34, 0.6), (39.5, 39, 0.3),
-                (36, 37.5, 0.3), (32, 38.5, 0.3), (28.5 + s, 42.5, 0), (26 + s, 41, 0), (24 + s, 45, 0),
-                (22 + s, 42.5, 0), (20.5 + s, 45.5, 0), (21.5, 38, 0.3), (24, 31, 0.6), (25, 26, 1)]
-        paint([(x + lean * k, y + by) for x, y, k in coat], "robe", ROBE)
-        # A leather belt cinching the coat at the waist, with an iron buckle.
-        belt = [(23.5, 32.5, 0.6), (40.3, 32.5, 0.6), (40.3, 35.5, 0.6), (23.5, 35.5, 0.6)]
-        paint([(x + lean * k, y + by) for x, y, k in belt], "belt", BELT)
-        bk = (round(29 + lean * 0.6), round(33.5 + by))
-        for p in (bk, (bk[0] + 1, bk[1]), (bk[0], bk[1] + 1), (bk[0] + 1, bk[1] + 1)):
-            g[p] = "w"
-            layer[p] = "buckle"
-        # The coat opens in a V at the chest, showing fur (where his sigils glow).
-        paint(mv([(33.5, 19), (38.5, 20), (37, 30), (35.5, 32)], *up), "body", acc=lambda p: True)
+    if WAR:
+        # A forged chest plate bolted over his chest, and a band of hip plates.
+        plate = [(30, 19.5, 1), (38, 19.5, 1), (40.5, 25, 1), (39, 32, 0.6), (33.5, 33.5, 0.6), (29.5, 27, 0.9)]
+        paint([(x + lean * k, y + by) for x, y, k in plate], "iron", IRON)
+        hips = [(22.5, 36.5, 0.2), (37, 36, 0.2), (36.5, 40.5, 0), (31, 39, 0), (27, 41.5, 0), (23, 40, 0)]
+        paint([(x + lean * k, y + by) for x, y, k in hips], "iron", IRON)
     # Neck, halfway between chest and head.
-    if OCC:  # the long neck spans from the head down to the (lowered) shoulders
-        paint([(32 + hx, 12 + hy), (38.5 + hx, 11 + hy), (39.5 + lean, 20 + by), (32.5 + lean, 22 + by)], "body")
-    else:
-        neck = [(31, 14), (39, 13), (41, 21), (31.5, 23)] if JUG else [(32, 14), (38, 13), (39.5, 20), (32.5, 22)]
-        paint(mv(neck, (lean + hx) / 2, (by + hy) / 2), "body")
-    if WAR:  # the cape's collar wraps the front of his shoulders
+    neck = [(31, 14), (39, 13), (41, 21), (31.5, 23)] if JUG else [(32, 14), (38, 13), (39.5, 20), (32.5, 22)]
+    paint(mv(neck, (lean + hx) / 2, (by + hy) / 2), "body")
+    if WAR:  # an iron collar ring at the base of the neck
+        paint(mv([(31, 17.5), (39, 16.5), (40, 20.5), (31.5, 21.5)], *up), "iron", IRON)
+    if OCC:  # the cape's collar wraps the front of his shoulders
         paint(mv([(27, 19), (33, 16.5), (38, 18), (39.5, 21.5), (34, 22.5), (28.5, 23)], *up), "hood", CLOTH)
     if JUG:  # thick, shaggy grey mane over the shoulders, neck and upper back
         paint(mv([(17, 25), (13, 21), (18.5, 19.5), (16, 14), (22, 15), (22.5, 9), (27.5, 12), (30, 6.5),
@@ -317,12 +295,12 @@ def frame(bob=0, crouch=0, lean=0, head=(0, 0), ear=0, tail=0, cowl=0, eyes="ope
         # Hood over the back of the head and the shoulders, leaving the face clear.
         paint(mv([(29, 16), (31, 8), (36, 3.5), (41, 3), (44, 5.5), (40.5, 6.5), (37.5, 9), (36, 14), (38, 19),
                   (34, 23), (27.5, 24), (26, 20)], hx, hy), "hood", CLOTH)
-    if WAR:  # long and swept back, sleek
+    if OCC:  # long and swept back, sleek
         paint(mv([(33.5, 9), (43.5, 3.5), (27.5 + e, -0.5 + e * 0.5 + fy)], hx, hy), "ear",
               acc=lambda p: inside(mv([(35.5, 7), (41, 4.2), (30.5 + e, 1.2 + e * 0.4 + fy)], hx, hy), *p))
-    elif OCC:
-        paint(mv(near_ear, hx, hy), "ear",
-              acc=lambda p: inside(mv([(36, 8.5), (39.5, 6.5), (35 - e * 2, 3.5 + e * 0.6 + fy)], hx, hy), *p))
+    elif WAR:  # alert: shorter and held up
+        paint(mv([(33.5, 9), (42.5, 4.5), (31 + e, -0.5 + e * 0.6 + fy)], hx, hy), "ear",
+              acc=lambda p: inside(mv([(35.5, 7.5), (40, 5.2), (33 + e, 2 + e * 0.5 + fy)], hx, hy), *p))
     elif JUG:
         paint(mv([(34, 9.5), (42.5, 6), (31 + e, 0 + e * 0.5 + fy)], hx, hy), "ear",
               acc=lambda p: inside(mv([(35.8, 8.2), (40, 6.5), (33 + e, 2.2 + e * 0.4 + fy)], hx, hy), *p))
@@ -340,15 +318,10 @@ def frame(bob=0, crouch=0, lean=0, head=(0, 0), ear=0, tail=0, cowl=0, eyes="ope
             p = (round(x), round(y))
             if layer.get(p) in ("body", "leg", "head"):
                 g[p] = ACC[0]
-    if OCC:  # glowing sigils: a rune on the chest, a mark under the eye, a line on the brow
-        sig = [mv([(x, y)], *up)[0] for x, y in ((36, 21), (37, 22), (36, 23), (35, 22), (36, 22), (36, 25),
-                                                 (36, 26), (37, 27), (36, 28), (35, 27), (37, 30), (36, 31))]
-        sig += [mv([(x, y)], hx, hy)[0] for x, y in ((41, 14), (42, 15), (43, 14), (44, 15), (37, 7), (38, 7),
-                                                     (39, 7), (38, 8))]
-        for x, y in sig:
-            p = (round(x), round(y))
-            if layer.get(p) in ("body", "head"):
-                g[p] = ACC[0]
+    if WAR:  # a forged pauldron over the near shoulder, on top of the arm
+        sh = add(REST["arm"]["sh"], up)
+        paint(mv([(-5.5, -3), (2, -5.5), (6, -2), (5, 3), (-1.5, 4), (-5.5, 1)], *sh), "iron", IRON)
+        paint(mv([(-4, 2.5), (4.5, 2), (4, 5.5), (-3.5, 6)], *sh), "iron", IRON)  # a second, lower plate
 
     # Seams: darken the edge of a part where it sits on an earlier part.
     for (x, y), part in list(layer.items()):
@@ -359,7 +332,7 @@ def frame(bob=0, crouch=0, lean=0, head=(0, 0), ear=0, tail=0, cowl=0, eyes="ope
             if q in layer and layer[q] != part and order[q] < order[(x, y)] and (layer[q] != "far" or part == "arm"):
                 g[(x, y)] = ("o" if part == "arm" else CLOTH[3] if part in ("hood", "cowl")
                              else BLADE[3] if part == "blade" else ACC[3] if part == "mane"
-                             else ROBE[3] if part == "robe" else "o" if part == "belt" else FUR[3])
+                             else "o" if part == "iron" else FUR[3])
                 break
     for p in [p for p in g if not any((p[0] + dx, p[1] + dy) in g for dx, dy in N4)]:
         del g[p]
@@ -368,17 +341,25 @@ def frame(bob=0, crouch=0, lean=0, head=(0, 0), ear=0, tail=0, cowl=0, eyes="ope
         if any((x + dx, y + dy) not in filled for dx, dy in N4):
             g[(x, y)] = "o"
 
-    if OCC:  # glowing ear tips: brightest at the tip, fading down the ear, no outline
-        for tip, part, dim in glow_tips:
-            for p, pt in layer.items():
-                if pt == part and p in g:
-                    d = math.hypot(p[0] + .5 - tip[0], p[1] + .5 - tip[1])
-                    if d <= 3.6:
-                        g[p] = GLOW[min(3, int(d / 1.2) + dim)]
+    if WAR:  # glowing rune-etched bindings (eye-glow zone, so they dye with his eyes)
+        # Etched as connected lines: a glyph down the chest plate, a channel along the bracer,
+        # a line across the hip plates and around the collar.
+        runes = [mv([(35, y)], *up)[0] for y in range(24, 31)]                   # chest: the glyph's stem
+        runes += [mv([p], *up)[0] for p in ((33, 22), (34, 23), (37, 22), (36, 23))]  # two arms branching up
+        runes += [mv([(x, 19 - (x - 32) * 0.12)], *up)[0] for x in range(32, 39)]  # collar
+        _, el, pw = arm_joints(REST["arm"], arm)
+        runes += [(el[0] + (pw[0] - el[0]) * f / 10, el[1] + (pw[1] - el[1]) * f / 10) for f in range(4, 10)]
+        runes += [(x + lean * 0.2, 38 + by) for x in range(24, 36)]               # hip line
+        for x, y in runes:
+            p = (round(x), round(y))
+            if layer.get(p) == "iron" and g.get(p) != "o":
+                g[p] = GLOW[1]
+        for x, y in (mv([(35, 24)], *up)[0],):  # a bright node where the glyph's arms meet
+            g[(round(x), round(y))] = GLOW[0]
 
     # Eye (side view: the near eye only), mouth and fang.
     stamp = EYES[eyes]
-    if WAR and eyes in ("open", "wide"):  # his eyes burn brighter: more highlight, less shadow
+    if OCC and eyes in ("open", "wide"):  # his eyes burn brighter: more highlight, less shadow
         stamp = {"open": ["ooo...", "eeEoo.", "eEEEEo", ".EEEfF"],
                  "wide": ["oo....", "eeEoo.", "eeEEEo", "EEEEfF"]}[eyes]
     for j, row in enumerate(stamp):
