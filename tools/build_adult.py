@@ -1,5 +1,5 @@
 # Builds the adult Skerbie forms (64x64), all 37 animations, as pixel grids -> JSON.
-# Usage: python tools/build_adult.py stalker   (the other three adults come later)
+# Usage: python tools/build_adult.py stalker|juggernaut [--look]   (--look: idle + blink only)
 #        python tools/render.py art/source/skerbie/adult_stalker.json --out art/out/skerbie/adult_stalker
 #
 # Same angular house style as the approved baby and kids: straight-edged polygons,
@@ -14,8 +14,13 @@
 # choreography follows the kids' (tools/build_kid.py), scaled to the bigger body.
 import json, math, sys
 
+FORMS = ("stalker", "juggernaut")
 FORM = sys.argv[1] if len(sys.argv) > 1 else "stalker"
-assert FORM == "stalker", "only the Shadow Stalker exists so far"
+assert FORM in FORMS, f"form must be one of {FORMS}"
+JUG = FORM == "juggernaut"
+#   juggernaut (SKB-AD-STR): upright and hulking, a heavy grounded stance, massive
+#   forearms in worn cloth wraps (the Strength kid's wraps grown up), a shaggy grey mane
+#   and scarred grey fur (both accent zone), short spiked tail.
 
 W = H = 64
 PAL = {
@@ -24,12 +29,15 @@ PAL = {
     "5": "#8a8494", "6": "#615b6b", "7": "#433e4c", "8": "#2c2833",   # accent fur
     "e": "#ff9a8a", "E": "#ff3d3d", "f": "#b81f2e", "F": "#6e0f1c",   # eye glow
     "w": "#c9cfd6",                                                   # fang, blade edge (never dyed)
-    "i": "#5a5e66",                                                   # blade iron (never dyed)
-    "j": "#4d5e7a", "k": "#3b4a63", "l": "#2a3448",                   # hood/cowl, slate (never dyed)
 }
+if FORM == "stalker":
+    PAL.update({"i": "#5a5e66",                                       # blade iron (never dyed)
+                "j": "#4d5e7a", "k": "#3b4a63", "l": "#2a3448"})      # hood/cowl, slate (never dyed)
+if JUG:
+    PAL.update({"q": "#bfae8c", "r": "#a8945e", "u": "#8b7a4a"})      # forearm wraps, worn cloth (never dyed)
 LX, LY = -0.6, -0.8  # light from top-left
 N4 = ((1, 0), (-1, 0), (0, 1), (0, -1))
-FUR, ACC, CLOTH, BLADE = "1234", "5678", "jkll", "wwii"
+FUR, ACC, CLOTH, BLADE, WRAP = "1234", "5678", "jkll", "wwii", "qruu"
 
 REST = {
     "arm":  {"sh": (33, 23), "el": (35, 32.5), "paw": (41.5, 37)},
@@ -37,6 +45,19 @@ REST = {
     "leg":  {"hip": (27, 38), "knee": (32, 47.5), "heel": (26, 56), "toe": (34.5, 62)},
     "fleg": {"hip": (31, 37.5), "knee": (36.5, 47), "heel": (31, 55.5), "toe": (39, 62)},
 }
+# Limb thickness: arm (upper, elbow, wrist, paw a, paw b), leg (thigh top, knee, shin end, foot).
+ARM_W = (6, 4.6, 3.8, 5, 3.6)
+LEG_W = (8, 5.5, 5, 4, 4.4, 3.6, 2.8)
+if JUG:  # wider stance, shoulders set forward, huge forearms that widen toward the fist
+    REST = {
+        # Long, heavy forearms hanging forward, fists down by the thighs.
+        "arm":  {"sh": (33, 22), "el": (35.5, 31.5), "paw": (40.5, 43.5)},
+        "farm": {"sh": (38, 21), "el": (42, 30), "paw": (48, 37.5)},
+        "leg":  {"hip": (25.5, 39), "knee": (30, 48.5), "heel": (24, 56), "toe": (33.5, 62)},
+        "fleg": {"hip": (32, 38.5), "knee": (37.5, 48), "heel": (32.5, 55.5), "toe": (41, 62)},
+    }
+    ARM_W = (8.5, 6.5, 9, 8, 6.5)
+    LEG_W = (11, 7.5, 6.5, 5.5, 5.6, 4.6, 3.6)
 EYES = {  # '.' leaves the fur underneath
     "open":   ["ooo...", "eEEoo.", "EEEEEo", ".ffffF"],
     "half":   ["ooo...", "oooooo", "EEEEEo", ".ffffF"],
@@ -135,7 +156,14 @@ def frame(bob=0, crouch=0, lean=0, head=(0, 0), ear=0, tail=0, cowl=0, eyes="ope
         sh, el, pw = arm_joints(rest, pose)
         d = math.hypot(pw[0] - el[0], pw[1] - el[1]) or 1
         tip = (pw[0] + (pw[0] - el[0]) / d * 3, pw[1] + (pw[1] - el[1]) / d * 3)
-        paint([seg(sh, el, 6, 4.6), seg(el, pw, 4.6, 3.8), seg(pw, tip, 5, 3.6, 0.4)], part, dark=dark)
+        wu, we, ww, pa, pb = ARM_W
+        if JUG:  # fur upper arm and elbow, then cloth wraps from mid-forearm over the fist
+            mid = (el[0] + (pw[0] - el[0]) * 0.72, el[1] + (pw[1] - el[1]) * 0.72)
+            wide = we + (ww - we) * 0.72
+            paint([seg(sh, el, wu, we), seg(el, mid, we, wide)], part, dark=dark)
+            paint([seg(mid, pw, wide, ww, 0.2), seg(pw, tip, pa, pb, 0.4)], part, WRAP, dark=dark)
+        else:
+            paint([seg(sh, el, wu, we), seg(el, pw, we, ww), seg(pw, tip, pa, pb, 0.4)], part, dark=dark)
 
     def leg_paint(rest, pose, part, dark=0):
         pose = pose or {}
@@ -144,48 +172,81 @@ def frame(bob=0, crouch=0, lean=0, head=(0, 0), ear=0, tail=0, cowl=0, eyes="ope
         heel = add(rest["heel"], pose.get("heel", (0, 0)))
         toe = add(rest["toe"], pose.get("toe", (0, 0)))
         ball = (toe[0] - 3, toe[1] - 1)
-        paint([seg(hip, kn, 8, 5.5),               # thigh
-               seg(kn, heel, 5, 4),                # shin, angled back
-               seg(heel, ball, 4.4, 3.6, 0.8),     # long foot down to the ball
-               seg(ball, toe, 3.6, 2.8, 0.6)],     # toes flat on the ground
+        t1, t2, s1, s2, f1, f2, f3 = LEG_W
+        paint([seg(hip, kn, t1, t2),               # thigh
+               seg(kn, heel, s1, s2),              # shin, angled back
+               seg(heel, ball, f1, f2, 0.8),       # long foot down to the ball
+               seg(ball, toe, f2, f3, 0.6)],       # toes flat on the ground
               part, dark=dark)
 
     # Far side, one shade darker.
-    paint(mv([(36, 7.5), (43, 3.5), (30.5 + e, -0.5 + e * 0.5 + fy)], hx, hy), "far", dark=1)   # far ear
+    if JUG:  # short, thick ears set lower
+        far_ear = [(35, 9), (42.5, 5.5), (33 + e, 0.5 + e * 0.5 + fy)]
+    else:
+        far_ear = [(36, 7.5), (43, 3.5), (30.5 + e, -0.5 + e * 0.5 + fy)]
+    paint(mv(far_ear, hx, hy), "far", dark=1)
     arm_paint(REST["farm"], farm, "far", dark=1)
     leg_paint(REST["fleg"], fleg, "far", dark=1)
-    # Long tail: back from the rump in two bends, ending in a blade.
     t = tail
-    knots = [(24, 41), (16, 45.5), (9.5, 41.5), (7 + t * 0.5, 33), (7 + t, 26)]
-    widths = [5.5, 4.6, 4, 3.4, 3]
-    paint([seg(mv([knots[i]], 0, by)[0], mv([knots[i + 1]], 0, by)[0], widths[i], widths[i + 1])
-           for i in range(len(knots) - 1)], "tail")
-    # The blade: a leaf-shaped iron tip with a bright edge on the lit side.
-    paint(mv([(4 + t, 28), (10 + t, 27), (9.5 + t, 20), (7 + t, 12), (4 + t, 19)], 0, by), "blade", BLADE)
-    # Cowl tail: the hood's cloth drapes down his back in tattered points.
-    c = cowl
-    paint(mv([(27, 19), (33, 17), (31, 27), (27, 34 + c), (25, 30 + c), (22, 35 + c * 1.5), (21, 28 + c),
-              (18, 30 + c * 1.5), (21, 22)], *up), "cowl", CLOTH)
+    if JUG:  # short, thick tail with a spiked accent-fur tip
+        paint(mv([(20, 39), (22.5, 46), (14, 50), (7, 48), (3 + t, 42), (5.5 + t, 39.5), (9, 43.5), (15, 43)], 0, by),
+              "tail", acc=lambda p: p[0] <= 8 + t)
+    else:
+        # Long tail: back from the rump in two bends, ending in a blade.
+        knots = [(24, 41), (16, 45.5), (9.5, 41.5), (7 + t * 0.5, 33), (7 + t, 26)]
+        widths = [5.5, 4.6, 4, 3.4, 3]
+        paint([seg(mv([knots[i]], 0, by)[0], mv([knots[i + 1]], 0, by)[0], widths[i], widths[i + 1])
+               for i in range(len(knots) - 1)], "tail")
+        # The blade: a leaf-shaped iron tip with a bright edge on the lit side.
+        paint(mv([(4 + t, 28), (10 + t, 27), (9.5 + t, 20), (7 + t, 12), (4 + t, 19)], 0, by), "blade", BLADE)
+        # Cowl tail: the hood's cloth drapes down his back in tattered points.
+        c = cowl
+        paint(mv([(27, 19), (33, 17), (31, 27), (27, 34 + c), (25, 30 + c), (22, 35 + c * 1.5), (21, 28 + c),
+                  (18, 30 + c * 1.5), (21, 22)], *up), "cowl", CLOTH)
     # Torso: upright, a little hunched forward. The chest takes the lean, the hips stay.
-    torso = [(22, 40, 0), (22.5, 30, 0.5), (25, 22, 1), (31, 18.5, 1), (37.5, 19.5, 1), (40, 25, 1),
-             (38, 33, 0.5), (34, 40, 0), (28, 42.5, 0)]
-    chest = mv([(36, 21), (40, 25), (38, 33), (35, 37), (34.5, 26)], *up)
+    if JUG:  # a barrel chest and a broad back, hunched over a low centre of gravity
+        torso = [(18, 42, 0), (17.5, 31, 0.5), (20, 21, 1), (28, 15.5, 1), (40, 16, 1), (44.5, 23, 1),
+                 (43, 34, 0.5), (37, 42, 0), (27, 45, 0)]
+        chest = mv([(39, 18), (44.5, 23), (43, 34), (39, 39), (37.5, 26)], *up)
+    else:
+        torso = [(22, 40, 0), (22.5, 30, 0.5), (25, 22, 1), (31, 18.5, 1), (37.5, 19.5, 1), (40, 25, 1),
+                 (38, 33, 0.5), (34, 40, 0), (28, 42.5, 0)]
+        chest = mv([(36, 21), (40, 25), (38, 33), (35, 37), (34.5, 26)], *up)
     paint([(x + lean * k, y + by) for x, y, k in torso], "body", acc=lambda p: inside(chest, *p))
     # Near leg.
     leg_paint(REST["leg"], leg, "leg")
     # Neck, halfway between chest and head.
-    paint(mv([(32, 14), (38, 13), (39.5, 20), (32.5, 22)], (lean + hx) / 2, (by + hy) / 2), "body")
+    neck = [(31, 14), (39, 13), (41, 21), (31.5, 23)] if JUG else [(32, 14), (38, 13), (39.5, 20), (32.5, 22)]
+    paint(mv(neck, (lean + hx) / 2, (by + hy) / 2), "body")
+    if JUG:  # thick, shaggy grey mane over the shoulders, neck and upper back
+        paint(mv([(17, 25), (13, 21), (18.5, 19.5), (16, 14), (22, 15), (22.5, 9), (27.5, 12), (30, 6.5),
+                  (33, 10.5), (37.5, 8), (37, 13), (42, 13.5), (39.5, 18.5), (43.5, 21.5), (37.5, 22),
+                  (33, 26), (29, 23.5), (23, 27.5), (21, 24)], (lean + hx) / 2, (by + hy) / 2),
+              "mane", acc=lambda p: True)
     # Head: the family wedge, long snout.
     paint(mv([(33, 11), (36, 6.5), (42, 5), (47, 7), (55, 11.5), (53.5, 15), (46, 18), (37, 18), (34, 15.5)], hx, hy),
           "head", acc=lambda p: p[1] >= 16.5 + hy and 38 + hx <= p[0] <= 49 + hx)
-    # Hood over the back of the head and the shoulders, leaving the face clear.
-    paint(mv([(29, 16), (31, 8), (36, 3.5), (41, 3), (44, 5.5), (40.5, 6.5), (37.5, 9), (36, 14), (38, 19),
-              (34, 23), (27.5, 24), (26, 20)], hx, hy), "hood", CLOTH)
-    # Near ear: long and swept back, poking out through the hood.
-    paint(mv([(33.5, 9), (43, 3.5), (28.5 + e, -0.5 + e * 0.5 + fy)], hx, hy), "ear",
-          acc=lambda p: inside(mv([(35.5, 7), (40.5, 4.2), (31.5 + e, 1.2 + e * 0.4 + fy)], hx, hy), *p))
+    if not JUG:
+        # Hood over the back of the head and the shoulders, leaving the face clear.
+        paint(mv([(29, 16), (31, 8), (36, 3.5), (41, 3), (44, 5.5), (40.5, 6.5), (37.5, 9), (36, 14), (38, 19),
+                  (34, 23), (27.5, 24), (26, 20)], hx, hy), "hood", CLOTH)
+    if JUG:
+        paint(mv([(34, 9.5), (42.5, 6), (31 + e, 0 + e * 0.5 + fy)], hx, hy), "ear",
+              acc=lambda p: inside(mv([(35.8, 8.2), (40, 6.5), (33 + e, 2.2 + e * 0.4 + fy)], hx, hy), *p))
+    else:
+        # Near ear: long and swept back, poking out through the hood.
+        paint(mv([(33.5, 9), (43, 3.5), (28.5 + e, -0.5 + e * 0.5 + fy)], hx, hy), "ear",
+              acc=lambda p: inside(mv([(35.5, 7), (40.5, 4.2), (31.5 + e, 1.2 + e * 0.4 + fy)], hx, hy), *p))
     # Near arm, outlined so it reads over his body.
     arm_paint(REST["arm"], arm, "arm")
+    if JUG:  # old scars: pale accent-fur slashes across his chest, thigh and snout
+        scars = [mv([(x, y)], *up)[0] for x, y in ((38, 27), (39, 28), (40, 29), (41, 30), (36, 31), (37, 32))]
+        scars += [(x, y + by) for x, y in ((23, 42), (24, 43), (25, 44))]
+        scars += [mv([(x, y)], hx, hy)[0] for x, y in ((45, 8), (46, 9), (47, 10))]
+        for x, y in scars:
+            p = (round(x), round(y))
+            if layer.get(p) in ("body", "leg", "head"):
+                g[p] = ACC[0]
 
     # Seams: darken the edge of a part where it sits on an earlier part.
     for (x, y), part in list(layer.items()):
@@ -195,7 +256,7 @@ def frame(bob=0, crouch=0, lean=0, head=(0, 0), ear=0, tail=0, cowl=0, eyes="ope
             q = (x + dx, y + dy)
             if q in layer and layer[q] != part and order[q] < order[(x, y)] and (layer[q] != "far" or part == "arm"):
                 g[(x, y)] = ("o" if part == "arm" else CLOTH[3] if part in ("hood", "cowl")
-                             else BLADE[3] if part == "blade" else FUR[3])
+                             else BLADE[3] if part == "blade" else ACC[3] if part == "mane" else FUR[3])
                 break
     for p in [p for p in g if not any((p[0] + dx, p[1] + dy) in g for dx, dy in N4)]:
         del g[p]
@@ -462,6 +523,9 @@ anim("concentrating", [
     F(lean=-1, eyes="wide", arm={"el": (1, -2), "paw": (2, -5)}, farm={"el": (1, -2), "paw": (2, -4)}),
     F(lean=-1, bob=-1, eyes="wide", ear=-1, arm={"el": (1, -2), "paw": (2, -5)}, farm={"el": (1, -2), "paw": (2, -4)}),
 ])
+
+if "--look" in sys.argv:  # a look test for a new form: keep only idle and blink
+    A = {k: A[k] for k in ("idle", "blink")}
 
 data = {
     "width": W, "height": H, "fps": 10, "palette": PAL,
