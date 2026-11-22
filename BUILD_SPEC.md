@@ -212,13 +212,14 @@ One engine for **raids** (fully automatic) and the **Cave Delve** (semi-automati
 - **Overflow pile:** when the chest is full, new finds go to a pile by the door (last 10 items, 24 h). Tap to reclaim. Leftovers auto-scrap into materials.
 - **Workbench crafting:** recipes from materials and ingredients → consumables and gear (better with Alchemy).
 - **Coins:** earned from **Bar Brawl wins** (main source), plus raids, the Delve, and selling items or ingredients. **No real money, ever:** no in-app purchases, no ads.
-- **Merchant:** a cloaked fox with a lantern cart. He **visits once a day** at a random time while you're playing or away, and stays about 6 h (tunable). Tap the cart to shop: food, materials, ingredients (buy and sell), consumables, occasional rare gear, cosmetic hats, home decor, and dye packs.
+- **Merchant:** a cloaked fox with a lantern cart. He **visits once a day** at a random time while you're playing or away, and stays about 6 h (tunable). Tap the cart to shop: food, materials, ingredients (buy and sell), consumables, occasional rare gear, home decor, and dye packs.
 - **Dyes:** recolor Skerbie **anytime, for free**, from the baby stage on.
   - **Zones:** main fur, accent fur, eye glow (always available), and **smoke** (unlocked by a dye pack).
   - **Picker:** a full color wheel **plus hex code entry**. Save colors as **swatches**.
   - **The game generates a 4-shade ramp** (highlight, base, shadow, deep shadow) from the chosen color and swaps it into the zone's reserved palette slots (see ART_BRIEF §Dye zones). Do this with a palette-swap shader or a pre-tinted texture cache.
   - **Dye packs** (coins) unlock **finishes** (metallic, glow, two-tone/gradient, sparkle), extra swatch slots, and the smoke zone.
-- **Cosmetic hats:** ~6, visible at kid and adult stages (not baby). A hat overrides an armor headpiece.
+- ~~Cosmetic hats~~: cut (George, 2026-11-22).
+- **Charm auras:** an equipped charm wraps Skerbie in its element's aura (kid and adult stages): ember shard = fire, moon coin = ice, feather = lightning, bone die = earth, fang = water, eye stone = Mind. See ART_BRIEF §5. (George, 2026-11-22.)
 
 ---
 
@@ -267,7 +268,7 @@ One engine for **raids** (fully automatic) and the **Cave Delve** (semi-automati
 **Prerequisite:** the art from `ART_BRIEF.md` (George wants the real art in before the build).
 
 1. **Core loop:** project setup, CI (web + IPA), save system (rolling + backup/restore), the home scene (Burrow, tap interactions, time-of-day lighting), egg/hatch/naming, feeding/pantry/snack/foraging, needs, **all 6 training games** with adaptive difficulty, type XP, levels, skill points + subtypes + Stats panel, kid evolution with lead-switching, audio (music auto-mute, sound effects, radio), haptics, silent tracking, Settings, the web Test panel.
-2. **Away loop:** away simulation (24 h cap, work rate, self-care), gathering, building, blueprint board, den tiers, garden, recap card, **battle engine + raids** + patch-up + damage overlays, items/gear/chest/overflow/scrapping, workbench crafting, coins, merchant, dyes + dye packs, hats.
+2. **Away loop:** away simulation (24 h cap, work rate, self-care), gathering, building, blueprint board, den tiers, garden, recap card, **battle engine + raids** + patch-up + damage overlays, items/gear/chest/overflow/scrapping, workbench crafting, coins, merchant, dyes + dye packs, charm auras.
 3. **Delve and adult:** move lists + auto-unlocks + chalkboard loadout, Cave Delve (zones, treasure, bosses, best depth), adult evolution and lock, level 50 cap, balance tuning pass.
 
 **v1 is done** when all three milestones run on the iPhone X, installed from the GitHub-built IPA.

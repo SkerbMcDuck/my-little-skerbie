@@ -114,8 +114,8 @@ Roughly 35 animations / ~135 frames per body × **8 bodies**.
 - **Weapons and armor** are drawn in **2 sizes** (kid 48, adult 64). They snap to the `hand` and `torso` points and must work on every form of that size. The frames follow the body's animations, so each gear piece needs overlay frames matching every body animation that shows it. (Practical rule: draw weapons as a few rotation poses keyed to the grip point; armor as a fitted overlay per body.)
 - **Weapons (6):** bone club (common), twin knives (common), spear (rare), hooked blade (rare), rune staff (epic, faint purple glow), obsidian greatsword (epic).
 - **Armors (6):** leaf wrap (common), leather vest (common), scrap plate (rare), chain cowl (rare), bone armor (epic), shadow-iron plate (epic).
-- **Charms** don't show on the body, only as icons (§13).
-- **Cosmetic hats (~6)**, kid and adult only, 2 sizes, on the `head` point. They override an armor headpiece. Ideas: hooded cowl, wizard hat, iron helm, leaf crown, bandana, horned cap.
+- **Charms** show as an **elemental aura** around Skerbie (George, 2026-11-22), plus their icon (§13). Each aura is a separate effect sprite that follows his outline, one set per kid and adult form with a row for every animation: ember shard = **fire** (flames licking up), moon coin = **ice** (frost sparkles), feather = **lightning** (crackling static), bone die = **earth** (pebbles and dust orbiting), fang = **water** (drifting droplets), eye stone = **Mind** (purple wisps). Built by `tools/build_charm_auras.py`.
+- ~~Cosmetic hats~~: **cut** (George, 2026-11-22). No hat sprites or hat icons.
 
 ---
 
@@ -248,7 +248,7 @@ Beast animations: summon-in [4], idle [3], **windup tell** (eye flash) [3], stri
 - **Materials:** wood, stone, scrap.
 - **Ingredients (6):** glowcap mushroom, ember pepper, moonberry, frostmint, ironroot, shadow plum.
 - **Dye packs:** a pouch icon per finish (metallic, glow, two-tone, sparkle) + the smoke-zone pack.
-- **Hats (~6):** an icon for each.
+- ~~Hats~~: cut (George, 2026-11-22).
 - **Currency:** coin icon (+ a stack variant).
 
 **Garden plants (in the scene):** each of the 6 ingredients in **sprout → growing → ripe** (ripe gets a soft sparkle) = 18 sprites. **Overflow pile:** small, medium and heaped (3 sprites). **Merchant (NPC-FOX):** a hunched cloaked fox pulling a rickety cart covered in lanterns, trinkets and hanging bottles: arrive [4], parked idle [3] (leaving = arrive reversed).
