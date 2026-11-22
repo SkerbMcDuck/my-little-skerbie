@@ -168,15 +168,13 @@ def frame(bob=0, ear=0, tail=0, eyes="open", head=(0, 0), crouch=0, feet=None,
 
     # Eyes: the brow slopes down toward the snout.
     ex, ey = 20 + hx, 12 + hy
-    near, far = EYES[eyes]
+    # True side view: only the near eye shows (George, 2026-11-21). The far-eye
+    # stamps in EYES are kept but no longer drawn.
+    near, _far = EYES[eyes]
     for j, row in enumerate(near):
         for i, ch in enumerate(row):
             if ch != ".":
                 g[(ex + i, ey + j)] = ch
-    for j, row in enumerate(far):
-        for i, ch in enumerate(row):
-            if ch != ".":
-                g[(26 + hx + i, ey + 1 + j)] = ch
     # Mouth and a single fang.
     my = 16 + hy
     if mouth == "open":

@@ -19,6 +19,7 @@ The complete art order for v1. It's written to be used with the **`pixel-art` sk
 - **Colors:** about 12–16 per character, about 32 for the whole world, all from §3.
 - **Animation:** 10 fps by default. The feet or base stay on the same row unless the motion is a jump or float. Secondary motion (ears, tail, scarf, smoke) lags 1 frame. Loops must be seamless.
 - **Facing:** draw every character facing **right** only; the game flips it.
+- **True side view:** only the near eye shows. Don't draw a sliver of the far eye over the snout (George, 2026-11-21).
 - **Attachment points:** for every kid and adult body frame, record `head`, `hand` (the weapon grip) and `torso` pixel coordinates in the frame data. Gear and hats snap to these.
 - **Effects** (smoke, sparks, elemental hits, sparkles) are **separate sprites**, never baked into bodies. Glowing effects (fire, lightning, magic, eye glow) get an extra **soft-glow layer** (a separate PNG, blended additively).
 - **Effect sizes:** combat and element effects in **small** (for babies, kids and small enemies) and **large** (for adults, the Hollow and bosses). UI effects in one size.
