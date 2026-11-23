@@ -1,0 +1,17 @@
+{
+  "width": 64,
+  "height": 24,
+  "fps": 8,
+  "dye_zones": {},
+  "animations": {
+    "idle": {
+      "row": 0,
+      "frames": 1,
+      "attach": []
+    }
+  },
+  "anchor": [
+    32,
+    23
+  ]
+}

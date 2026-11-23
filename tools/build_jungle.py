@@ -33,6 +33,54 @@ BIOMES = {
         bloom=["#f2a0b0", "#ffc8a8"], cap=["#ffc8a8", "#f2a0b0", "#4a3a5c"], bone=["#bfae8c", "#8b7a4a"],
         glow="#ffd08a",
     ),
+    "bog": dict(                                                                # Misty Bog: grey-teal fog, dead trees, glowing caps
+        style="bog",
+        sky=["#23212b", "#2a3448", "#3b4a63", "#4d5e7a", "#8a8494"],
+        cloud=["#3b4a63", "#8a8494"], moon=["#cfe9ff", "#9fc9f0"], stars="#9fc9f0",
+        far=["#17151c", "#1f3d44", "#3b4a63"],
+        midtrunk=["#17151c", "#23212b", "#1f3d44", "#2c4234"],
+        leaf=["#17151c", "#17151c", "#1f3d44", "#2c4234", "#3e5a46"],
+        trunk=["#17151c", "#23212b", "#2c4234", "#3e5a46"],
+        vine=["#1f3d44", "#2c4234", "#3e5a46"],
+        fore=["#17151c", "#1f3d44", "#2c4234"],
+        soil=["#17151c", "#17151c", "#1f3d44", "#23212b", "#2c4234"],
+        grass=["#17151c", "#1f3d44", "#2c4234", "#3e5a46", "#2ec4b6"],
+        rock=["#23212b", "#2a3448", "#3b4a63"],
+        bloom=["#2ec4b6", "#8ff0e6"], cap=["#8ff0e6", "#2ec4b6", "#178f86"], bone=["#bfae8c", "#8b7a4a"],
+        mist=["#3b4a63", "#4d5e7a", "#8a8494"], glow="#8ff0e6",
+    ),
+    "ruins": dict(                                                              # Overgrown Ruins: amber dusk, broken pillars, stone slabs
+        style="ruins",
+        sky=["#2a2036", "#4a3a5c", "#a8643a", "#ffb35c", "#ffd08a"],
+        cloud=["#4a3a5c", "#ffb35c"], moon=["#ffd08a", "#ffb35c"], stars="#ffd08a",
+        far=["#23212b", "#2a2036", "#4a3a5c"],
+        midtrunk=["#17151c", "#23212b", "#33303d", "#5a5e66"],
+        leaf=["#17151c", "#1f3d44", "#2c4234", "#3e5a46", "#557a5c"],
+        trunk=["#17151c", "#23212b", "#3b2a22", "#7a5636"],
+        vine=["#2c4234", "#3e5a46", "#557a5c"],
+        fore=["#17151c", "#23212b", "#2c4234"],
+        soil=["#17151c", "#23212b", "#33303d", "#3b4a63", "#4d5e7a"],
+        grass=["#1f3d44", "#2c4234", "#3e5a46", "#557a5c", "#a8945e"],
+        rock=["#23212b", "#3b4a63", "#5a5e66"],
+        bloom=["#ffb35c", "#ffd08a"], cap=["#ffd08a", "#ffb35c", "#a8643a"], bone=["#bfae8c", "#8b7a4a"],
+        glow="#ffd08a",
+    ),
+    "canopy": dict(                                                             # Moonlit Canopy: up in the treetops at night, giant branches
+        style="canopy",
+        sky=["#17151c", "#2a3448", "#3b4a63", "#4d5e7a", "#9fc9f0"],
+        cloud=["#3b4a63", "#9fc9f0"], moon=["#f2f9ff", "#cfe9ff"], stars="#cfe9ff",
+        far=["#17151c", "#1f3d44", "#4d5e7a"],
+        midtrunk=["#17151c", "#23212b", "#2a3448", "#3b4a63"],
+        leaf=["#17151c", "#1f3d44", "#2c4234", "#3e5a46", "#9fc9f0"],
+        trunk=["#17151c", "#23212b", "#3b2a22", "#7a5636"],
+        vine=["#1f3d44", "#2c4234", "#3e5a46"],
+        fore=["#17151c", "#1f3d44", "#2a3448"],
+        soil=["#17151c", "#17151c", "#23212b", "#3b2a22", "#7a5636"],
+        grass=["#1f3d44", "#2c4234", "#3e5a46", "#557a5c", "#9fc9f0"],
+        rock=["#23212b", "#3b4a63", "#4d5e7a"],
+        bloom=["#cfe9ff", "#f2f9ff"], cap=["#cfe9ff", "#9fc9f0", "#3b4a63"], bone=["#bfae8c", "#8b7a4a"],
+        glow="#cfe9ff",
+    ),
 }
 
 
@@ -154,8 +202,23 @@ def sky(b, seed):
 
 def far(b, seed):
     L = Layer()
+    style = b.get("style")
+    towers = []
+    if style == "ruins":                                                         # ruined towers and arches on the skyline
+        rnd = random.Random(seed)
+        for k in range(6):
+            tx = int((k + rnd.uniform(0.2, 0.8)) * W / 6)
+            towers.append((tx, rnd.randint(8, 14), rnd.randint(38, 70)))
+    base = 120 if style == "canopy" else 96
     for x in range(W):                                                          # a rolling line of distant crowns
-        top = 96 + int(pnoise(x, 0, seed, octaves=((4, 1), (9, 0.7), (23, 0.5), (41, 0.3))) * 46 - 23)
+        top = base + int(pnoise(x, 0, seed, octaves=((4, 1), (9, 0.7), (23, 0.5), (41, 0.3))) * 46 - 23)
+        for tx, tw, th in towers:
+            dx = min(abs(x - tx), W - abs(x - tx))
+            if dx < tw:
+                crown = top - th + (3 if (x // 3) % 2 and dx > tw - 4 else 0)  # crenellations
+                if dx < 3 and th > 50:
+                    crown += 10                                                # a broken notch
+                top = min(top, crown)
         for y in range(top, H):
             v = 1.0 + (y - top) / 50 + (pnoise(x, y, seed + 3) - 0.5) * 0.6
             L.put(x, y, dither_pick(b["far"][1::-1], min(1, max(0, v - 1)), x, y))
@@ -170,12 +233,48 @@ def far(b, seed):
 def mid(b, seed):
     L = Layer()
     rnd = random.Random(seed)
+    style = b.get("style")
     n = 7
-    for k in range(n):                                                          # trunks, evenly spread so it loops
+    if style == "canopy":                                                       # giant boughs crossing the view
+        for k in range(4):
+            y0 = rnd.randint(40, 150)
+            x0 = (k + rnd.random()) * W / 4
+            pts = [(x0 - 140 + t, y0 + 18 * math.sin(t / 60 + k)) for t in range(0, 281, 20)]
+            L.line(pts, 14, 10, b["midtrunk"])
+            for t in range(0, 281, 35):
+                L.disc(x0 - 140 + t, y0 - 10 + 18 * math.sin(t / 60 + k), rnd.uniform(10, 16), rnd.uniform(6, 9), b["leaf"][1:4])
+    for k in range(n if style != "canopy" else 0):                               # trunks / pillars, evenly spread so it loops
         x0 = int((k + rnd.uniform(0.2, 0.8)) * W / n)
         wdt = rnd.randint(9, 15)
         lean = rnd.uniform(-6, 6)
+        if style == "ruins":                                                    # a broken stone pillar, capital and drum joints
+            wdt += 4
+            top = rnd.randint(-10, 90)
+            for y in range(max(0, top), H):
+                for x in range(int(x0 - wdt / 2), int(x0 + wdt / 2) + 1):
+                    rel = (x - (x0 - wdt / 2)) / wdt
+                    col = b["midtrunk"][3] if rel < 0.25 else b["midtrunk"][2] if rel < 0.7 else b["midtrunk"][1]
+                    if (y - top) % 22 == 0 or (rel > 0.45 and rel < 0.5 and y % 5 == 0):
+                        col = b["midtrunk"][0]
+                    L.put(x, y, col)
+            if top > 0:                                                         # jagged broken top
+                for x in range(int(x0 - wdt / 2), int(x0 + wdt / 2) + 1):
+                    for y in range(top, top + rnd.randint(0, 6)):
+                        L.px.pop((x % W, y), None)
+            else:
+                for x in range(int(x0 - wdt / 2) - 3, int(x0 + wdt / 2) + 4):    # a capital where it reaches the top
+                    for y in range(14, 20):
+                        L.put(x, y, b["midtrunk"][3] if y == 14 else b["midtrunk"][2])
+            for j in range(2):                                                  # vines climbing the stone
+                vx = x0 + rnd.uniform(-wdt / 2, wdt / 2)
+                L.line([(vx + 3 * math.sin(t / 8 + j), t) for t in range(max(0, top), H, 6)], 2, 2, b["vine"])
+            continue
         L.line([(x0 + lean, -4), (x0 + lean * 0.4, 110), (x0, H + 4)], wdt * 0.8, wdt * 1.25, b["midtrunk"])
+        if style == "bog":                                                      # bare dead branches
+            for j in range(3):
+                by = rnd.randint(40, 120)
+                side = rnd.choice((-1, 1))
+                L.line([(x0, by), (x0 + side * 22, by - 14), (x0 + side * 30, by - 26)], 4, 1.5, b["midtrunk"])
         for (ry, side) in ((rnd.randint(150, 190), -1), (rnd.randint(150, 190), 1)):   # buttress roots
             L.line([(x0, ry), (x0 + side * wdt * 1.6, H + 2)], wdt * 0.6, 3, b["midtrunk"])
         for j in range(rnd.randint(2, 3)):                                      # hanging vines
@@ -185,10 +284,18 @@ def mid(b, seed):
             L.line(pts, 2, 2, b["vine"])
             for t in range(10, ln, 14):
                 L.disc(vx + 3 * math.sin(t / 9 + j) + 2, t, 2.6, 1.6, b["leaf"][2:])
-    for k in range(18):                                                         # leaf clumps hanging from the top
+    for k in range(18 if style != "bog" else 8):                                # leaf clumps hanging from the top
         cx, cy = (k + rnd.random()) * W / 18, rnd.randint(-6, 26)
         for j in range(4):
             L.disc(cx + rnd.uniform(-16, 16), cy + rnd.uniform(-6, 10), rnd.uniform(9, 15), rnd.uniform(6, 9), b["leaf"][1:4])
+    if style == "bog":                                                          # fog banks drifting through the trees
+        for y in range(60, H):
+            for x in range(W):
+                n = pnoise(x, y * 2, seed + 7, octaves=((2, 1), (5, 0.6), (13, 0.3)), yscale=0.03)
+                band = math.exp(-((y - 150 - 20 * math.sin(2 * math.pi * x / W * 3)) / 34) ** 2)
+                v = n * band
+                if v > 0.42 and (x + y) % 2 == 0 or v > 0.55:
+                    L.put(x, y, b["mist"][0] if v < 0.52 else b["mist"][1])
     return L
 
 
@@ -235,6 +342,18 @@ def tile(b, name, seed):
     soil, grass = b["soil"], b["grass"]
     rnd = random.Random(seed)
 
+    style = b.get("style")
+
+    def fillcol(x, y):
+        if style == "ruins":                                                    # cut stone blocks
+            joint = y % 8 == 0 or (x + (4 if (y // 8) % 2 else 0)) % 8 == 0
+            return soil[1] if joint else soil[3] if (x % 8 < 2 or y % 8 == 1) else soil[2]
+        if style == "canopy":                                                   # wood grain inside a giant bough
+            v = 2.4 + math.sin(y * 1.3 + math.sin(x * 0.4) * 1.5) * 0.9
+            return dither_pick(soil[1:], v - 1, x, y)
+        v = 2 + (pnoise(x * 7 + seed, y * 7, seed) - 0.5) * 1.6
+        return dither_pick(soil[1:], v - 1, x, y)
+
     def ground(surface, left_edge=False, right_edge=False, fill_only=False, xs=range(T)):
         for x in xs:
             top = surface(x)
@@ -243,8 +362,7 @@ def tile(b, name, seed):
             for y in range(max(0, int(top)), T):
                 d = y - top
                 if fill_only:
-                    v = 2 + (pnoise(x * 7 + seed, y * 7, seed) - 0.5) * 1.6
-                    col = dither_pick(soil[1:], v - 1, x, y)
+                    col = fillcol(x, y)
                 elif d < 1:
                     col = grass[4] if x % 5 == 1 else grass[3]
                 elif d < 3:
@@ -252,8 +370,13 @@ def tile(b, name, seed):
                 elif d < 4:
                     col = grass[1] if x % 3 else soil[3]
                 else:
-                    v = 2 + (pnoise(x * 7 + seed, y * 7, seed) - 0.5) * 1.6
-                    col = dither_pick(soil[1:], v - 1, x, y)
+                    col = fillcol(x, y)
+                if style == "canopy" and not fill_only and 1 <= d < 4:            # bark ridges on top, moss in patches
+                    col = soil[4] if (x + int(d)) % 4 == 0 else soil[3] if d < 3 else soil[2]
+                    if (x // 5) % 3 == 0 and d < 2:
+                        col = grass[3]
+                if style == "ruins" and not fill_only and 2 <= d < 4:              # a slab edge under the moss
+                    col = soil[4] if d < 3 else soil[2]
                 L.put(x, y, col, wrap=False)
             for y in range(max(0, int(top)), T):
                 if (left_edge and x == 0) or (right_edge and x == T - 1):
@@ -365,6 +488,226 @@ def tile(b, name, seed):
     return L
 
 
+# ============================================================================ obstacles (re-dressed per biome)
+def outline(L, keep_glow=None):
+    # Obstacles are things to react to, so like characters they get the dark outline.
+    edge = [p for p in L.px if any((p[0] + dx, p[1] + dy) not in L.px for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))
+            and L.px[p] != keep_glow]
+    for p in edge:
+        L.px[p] = "#0f0d14"
+    return L
+
+
+def obstacles(b, seed):
+    out = {}
+    style = b.get("style")
+    rnd = random.Random(seed)
+    grass, trunk, soil = b["grass"], b["trunk"], b["soil"]
+
+    # fallen log (32x16): a mossy trunk lying across the path; in the ruins, a toppled column drum
+    L = Layer(32, 16)
+    for x in range(1, 31):
+        for y in range(3, 16):
+            rel = (y - 3) / 13
+            if style == "ruins":
+                col = b["rock"][2] if rel < 0.2 else b["rock"][1] if rel < 0.7 else b["rock"][0]
+                if x % 9 == 0:
+                    col = b["rock"][0]
+            else:
+                col = trunk[3] if rel < 0.15 else trunk[2] if rel < 0.65 else trunk[1]
+                if (x * 3 + y) % 11 == 0:
+                    col = trunk[1]
+            L.put(x, y, col, wrap=False)
+    for y in range(4, 15):                                                      # the cut end with its rings
+        for x in range(26, 32):
+            d = math.hypot(x - 28.5, y - 9.5)
+            if d < 5.6:
+                L.put(x, y, (b["rock"][2] if d < 2 else b["rock"][1]) if style == "ruins" else (trunk[3] if int(d) % 2 else trunk[2]), wrap=False)
+    for x in range(2, 25):                                                      # moss along the top
+        if (x // 3) % 2 == 0 or x % 5 == 0:
+            L.put(x, 3, grass[3], wrap=False)
+            L.put(x, 2, grass[2] if x % 4 == 0 else None, wrap=False)
+    out["log"] = (outline(L), None)
+
+    # thorny gap edge (16x32): a thorn bush (or rusted spikes in the ruins) at the lip of a pit
+    L = Layer(16, 32)
+    for k in range(7):
+        bx = 2 + k * 2
+        ht = 10 + (k * 7) % 12
+        for t in range(ht):
+            x = bx + int(2 * math.sin(t / 3 + k))
+            L.put(x, 31 - t, trunk[2] if style != "ruins" else b["rock"][1], wrap=False)
+            if t % 4 == 2:                                                      # thorns
+                L.put(x + (1 if k % 2 else -1), 31 - t, b["bone"][0], wrap=False)
+                L.put(x + (2 if k % 2 else -2), 31 - t - 1, b["bone"][1], wrap=False)
+        L.put(bx + int(2 * math.sin(ht / 3 + k)), 31 - ht, b["bone"][0], wrap=False)
+    out["thorn_edge"] = (outline(L), None)
+
+    # root snare (32x16): a loop of root lying on the path [idle], then it snaps up taut [snap 2]
+    frames = []
+    for f in range(3):
+        L = Layer(32, 16)
+        lift = (0, 6, 9)[f]
+        for x in range(2, 30):
+            t = (x - 2) / 27
+            y = 14 - lift * math.sin(math.pi * t) - (1.5 * math.sin(t * 9) if f == 0 else 0)
+            for w in range(3):
+                L.put(x, y + w, trunk[3] if w == 0 else trunk[2] if w == 1 else trunk[1], wrap=False)
+        for x in (2, 29):                                                       # pegged into the ground
+            for y in range(12, 16):
+                L.put(x, y, trunk[2], wrap=False)
+        if f == 2:
+            for x, y in ((8, 2), (16, 0), (24, 2)):                             # dirt flicked up
+                L.put(x, y, soil[3], wrap=False)
+        frames.append(outline(L))
+    out["root_snare"] = (frames[0], {"idle": [frames[0]], "snap": frames[1:]})
+
+    # low branch (64x24): a bough at head height, with leaves (or a fallen lintel in the ruins)
+    L = Layer(64, 24)
+    if style == "ruins":
+        for x in range(0, 64):
+            for y in range(4, 14):
+                L.put(x, y, b["rock"][2] if y < 6 else b["rock"][1] if y < 11 else b["rock"][0], wrap=False)
+        for x in range(0, 64, 9):
+            for y in range(4, 14):
+                L.put(x, y, b["rock"][0], wrap=False)
+        for x in range(4, 60, 7):
+            for t in range(3 + x % 6):
+                L.put(x + (t % 2), 14 + t, b["vine"][1], wrap=False)
+    else:
+        L.line([(-2, 10), (30, 8), (66, 11)], 7, 5, trunk, wrap=False)
+        for k in range(8):
+            L.disc(4 + k * 8, 13 + (k % 2) * 3, 4.5, 3, b["leaf"][1:4], wrap=False)
+    out["low_branch"] = (outline(L), None)
+
+    # vine anchor (24x64): a hanging vine ending in a glowing knot to grab; sways [3]
+    frames = []
+    for f in range(3):
+        L = Layer(24, 64)
+        sway = (-2, 0, 2)[f]
+        pts = [(12 + sway * (t / 54) ** 1.5 + math.sin(t / 7) * 1.2, t) for t in range(0, 56, 4)]
+        L.line(pts, 2.6, 2.6, b["vine"], wrap=False)
+        for t in range(6, 50, 9):
+            L.disc(pts[t // 4][0] + 2, t, 2.4, 1.4, b["leaf"][2:], wrap=False)
+        kx, ky = pts[-1][0], 57
+        for y in range(ky - 7, ky + 8):                                         # the faint glow round the knot
+            for x in range(int(kx - 8), int(kx + 9)):
+                d = math.hypot(x - kx, y - ky)
+                if 4 < d < 7.5 and (x + y + f) % 3 == 0:
+                    L.put(x, y, b["glow"], wrap=False)
+        for y in range(ky - 4, ky + 5):
+            for x in range(int(kx - 4), int(kx + 5)):
+                d = math.hypot(x - kx, y - ky)
+                if d < 3.8:
+                    L.put(x, y, b["glow"] if d < 2 else b["bloom"][1] if d < 3 else b["vine"][2], wrap=False)
+        glow = {p: c for p, c in L.px.items() if c == b["glow"] and math.hypot(p[0] - kx, p[1] - ky) > 3.8}
+        for p in glow:
+            L.px.pop(p)
+        outline(L)
+        L.px.update(glow)                                                       # the dithered glow halo stays soft
+        frames.append(L)
+    out["vine_anchor"] = (frames[0], {"sway": frames})
+    return out
+
+
+def clearing():
+    # The treasure clearing: a mossy glade in a ring of trees, fireflies drifting [4]. Shared by all biomes
+    # (the biome fades into it). Opaque 487x225; the chest stands on "chest_spot".
+    frames = []
+    base = Layer()
+    sky_r = ["#2a2036", "#3a2d4a", "#3e5a46", "#557a5c"]
+    for y in range(H):
+        for x in range(W):
+            base.put(x, y, dither_pick(sky_r, y / H * 2.6, x, y), wrap=False)
+    rnd = random.Random(77)
+    for k in range(9):                                                          # the ring of trees round the glade, open in the middle
+        tx = int((k + 0.5) * W / 9 + rnd.uniform(-10, 10))
+        wd = rnd.randint(10, 22)
+        if 170 < tx < 320:
+            continue
+        base.line([(tx, -4), (tx + rnd.uniform(-6, 6), H)], wd, wd * 1.3, ["#17151c", "#23212b", "#2a2036", "#3b2a22"], wrap=False)
+    for k in range(20):
+        cx = (k + rnd.random()) * W / 20
+        for j in range(3):
+            base.disc(cx + rnd.uniform(-14, 14), rnd.randint(-4, 30), rnd.uniform(10, 18), rnd.uniform(7, 11),
+                      ["#1f3d44", "#2c4234", "#3e5a46"], wrap=False)
+    GR = 177
+    for y in range(GR, H):                                                      # the mossy floor, a pool of light in the middle
+        for x in range(W):
+            d = math.hypot((x - 243) / 150, (y - GR - 10) / 40)
+            v = 3.2 - d * 1.6 + (pnoise(x, y, 79) - 0.5) * 0.6
+            base.put(x, y, dither_pick(["#1f3d44", "#2c4234", "#3e5a46", "#557a5c", "#a8945e"], v, x, y), wrap=False)
+    for y in range(40, GR):                                                     # a shaft of soft light onto the glade
+        for x in range(170, 320):
+            t = (y - 40) / (GR - 40)
+            if abs(x - 243 - (y - 40) * 0.15) < 30 + t * 40 and (x + y) % 3 == 0 and base.px.get((x, y)) in ("#2a2036", "#3a2d4a", "#3e5a46"):
+                base.put(x, y, "#557a5c", wrap=False)
+    for x in range(0, W, 3):                                                    # grass and little flowers on the rim
+        base.put(x, GR - 1, "#557a5c", wrap=False)
+        if x % 21 == 0:
+            base.put(x, GR - 2, "#f2a0b0", wrap=False)
+    for f in range(4):                                                          # fireflies drifting about
+        L = Layer()
+        L.px = dict(base.px)
+        for k in range(26):
+            r2 = random.Random(k)
+            x = int(r2.uniform(20, 467) + 6 * math.sin((f + k) * 1.57))
+            y = int(r2.uniform(60, 175) + 4 * math.cos((f + k * 2) * 1.57))
+            if (k + f) % 4 != 0:
+                L.put(x, y, "#ffd08a", wrap=False)
+                if (k + f) % 3 == 0:
+                    L.put(x + 1, y, "#ffb35c", wrap=False)
+        frames.append(L)
+    return frames, GR
+
+
+def chest():
+    # The glowing treasure chest (32x28): closed [1], opening [4], open [1] with gold glow spilling out.
+    frames = []
+    for f in range(6):
+        L = Layer(32, 36)
+        put0 = L.put
+        L.put = lambda x, y, c, wrap=False, _p=put0: _p(x, y + 8, c, wrap)
+        open_amt = (0, 0.15, 0.4, 0.7, 1.0, 1.0)[f]
+        wood = ["#17151c", "#3b2a22", "#7a5636", "#a8945e"]
+        for x in range(3, 29):                                                  # the box
+            for y in range(14, 27):
+                col = wood[3] if y == 14 else wood[2] if x < 26 else wood[1]
+                if x in (3, 28) or y == 26:
+                    col = "#0f0d14"
+                if x in (8, 23):
+                    col = "#5a5e66"                                             # iron bands
+                L.put(x, y, col, wrap=False)
+        for x in range(13, 19):                                                 # the lock plate
+            for y in range(15, 20):
+                L.put(x, y, "#f2c14e" if y < 18 else "#a8643a", wrap=False)
+        L.put(16, 17, "#0f0d14", wrap=False)
+        lift = int(open_amt * 10)                                               # the lid tips back: it rises and
+        lid_h = max(2, int(8 * (1 - open_amt * 0.75)))                          # shows less of its face as it opens
+        for x in range(3, 29):
+            top = 14 - lift - lid_h + int(abs(x - 16) ** 2 / 60)
+            for y in range(top, 14 - lift):
+                col = wood[3] if y == top else wood[2] if x < 26 else wood[1]
+                if x in (3, 28) or y == 13 - lift:
+                    col = "#0f0d14"
+                if x in (8, 23):
+                    col = "#5a5e66"
+                L.put(x, y, col, wrap=False)
+        if open_amt > 0:                                                        # gold light pouring out
+            for y in range(14 - lift, 15):
+                for x in range(5, 27):
+                    solid = y >= 12
+                    if solid or (x + y) % (2 if open_amt > 0.5 else 3) == 0:
+                        L.put(x, y, "#ffe08a" if y >= 12 else "#f2c14e", wrap=False)
+            for k in range(int(open_amt * 8)):
+                L.put(6 + k * 3, 4 - k % 3 - lift // 2, "#ffe08a", wrap=False)
+        else:                                                                   # a faint glow seeping from the seam
+            for x in range(6, 27, 3):
+                L.put(x, 13, "#ffe08a", wrap=False)
+        frames.append(L)
+    return frames
+
+
 def build(biome):
     b = BIOMES[biome]
     base = f"art/source/jungle/{biome}"
@@ -375,8 +718,59 @@ def build(biome):
     fore(b, seed + 3).json(f"{base}/fore.json", extra={"parallax": 1.4})
     tiles = [tile(b, n, seed + i) for i, n in enumerate(TILE_NAMES)]
     tiles[0].json(f"{base}/tiles.json", name="tiles", frames=tiles, extra={"tile_names": TILE_NAMES, "tile_size": T})
+    for name, (L, anims) in obstacles(b, seed + 5).items():
+        path = f"{base}/obstacles/{name}.json"
+        if anims:
+            first = next(iter(anims))
+            _write_multi(path, anims)
+        else:
+            L.json(path, name="idle", extra={"anchor": [L.w // 2, L.h - 1]})
+
+
+def _write_multi(path, anims):
+    # Several animations in one JSON (one row each), sharing a palette.
+    pal, inv, out = {}, {}, {}
+    chars = iter("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+    for a, frames in anims.items():
+        rows_all = []
+        for fr in frames:
+            rows = []
+            for y in range(fr.h):
+                line = ""
+                for x in range(fr.w):
+                    c = fr.px.get((x, y))
+                    if c is None:
+                        line += "."
+                        continue
+                    if c not in inv:
+                        inv[c] = next(chars)
+                        pal[inv[c]] = c
+                    line += inv[c]
+                rows.append(line)
+            rows_all.append(rows)
+        out[a] = rows_all
+    f0 = next(iter(anims.values()))[0]
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    json.dump({"width": f0.w, "height": f0.h, "fps": 8, "palette": pal, "dye_zones": {}, "attach": {},
+               "anchor": [f0.w // 2, f0.h - 1], "animations": out}, open(path, "w"))
+    print("wrote", path)
+
+
+def build_shared():
+    frames, gr = clearing()
+    frames[0].json("art/source/jungle/clearing/clearing.json", name="fireflies", frames=frames,
+                   extra={"chest_spot": [243, gr + 4], "ground": gr})
+    ch = chest()
+    _write_multi("art/source/jungle/clearing/chest.json", {"closed": [ch[0]], "opening": ch[1:5], "open": [ch[5]]})
+    # the Gloomling runner critter: the twig imp's run, borrowed from the enemy builder
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import build_enemies as be
+    frames = [be.twig_imp(be.Canvas(24, 24), be.pose("walk", f)) for f in range(4)]
+    be.write("art/source/jungle/clearing/../critter_runner.json", 24, 24, "moss", {"run": frames})
 
 
 if __name__ == "__main__":
     for bio in sys.argv[1:] or list(BIOMES):
         build(bio)
+    if not sys.argv[1:]:
+        build_shared()
