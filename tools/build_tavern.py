@@ -407,10 +407,7 @@ table(14, 42, FLOOR + 4)
 stool(51, FLOOR + 12)
 mug(19, FLOOR + 4)
 mug(32, FLOOR + 4, foam=False)
-table(176, 208, FLOOR + 4)
-stool(166, FLOOR + 12)
-mug(186, FLOOR + 4)
-mug(196, FLOOR + 4)
+
 
 # ---- 11. Hanging lanterns (chains from the lower beam) and the light they throw
 LANTERNS = [(80, 182), (126, 196), (176, 182)]
@@ -461,11 +458,11 @@ for y in range(H):
     rows.append("".join(line))
 
 SPOTS = {  # pixel positions the game uses (feet / bottom-centre unless noted)
-    "badger": [110, BAR_TOP],          # stands behind the bar; his sprite's bottom is hidden by the counter
-    "druid": [196, FIGHT - 4],        # at the ring's edge, right side
+    "badger": [92, BAR_TOP],          # stands behind the bar; his sprite's bottom is hidden by the counter
+    "druid": [194, FLOOR + 24],       # back right of the floor, in front of the barrels, watching the ring
     "skerbie": [70, FIGHT],
     "beast": [156, FIGHT],
-    "crowd_gallery": [112, GALLERY],  # bottom-centre of the upper crowd row
+    "crowd_gallery": [112, GALLERY - 21],  # bottom-centre of the upper crowd row (they lean on the top rail)
     "crowd_front": [112, H],          # bottom-centre of the front crowd row
     "chairs": [[30, FRONT - 6], [196, FRONT - 6]],
     "mugs": [[78, BAR_TOP], [134, BAR_TOP], [150, BAR_TOP]],

@@ -1,0 +1,22 @@
+{
+  "width": 225,
+  "height": 44,
+  "fps": 8,
+  "dye_zones": {},
+  "animations": {
+    "cheer": {
+      "row": 0,
+      "frames": 2,
+      "attach": []
+    },
+    "erupt": {
+      "row": 1,
+      "frames": 2,
+      "attach": []
+    }
+  },
+  "anchor": [
+    112,
+    43
+  ]
+}

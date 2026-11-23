@@ -1,0 +1,22 @@
+{
+  "width": 28,
+  "height": 28,
+  "fps": 8,
+  "dye_zones": {},
+  "animations": {
+    "intact": {
+      "row": 0,
+      "frames": 1,
+      "attach": []
+    },
+    "smash": {
+      "row": 1,
+      "frames": 3,
+      "attach": []
+    }
+  },
+  "anchor": [
+    14,
+    27
+  ]
+}

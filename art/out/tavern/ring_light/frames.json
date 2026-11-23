@@ -1,0 +1,17 @@
+{
+  "width": 96,
+  "height": 48,
+  "fps": 8,
+  "dye_zones": {},
+  "animations": {
+    "glow": {
+      "row": 0,
+      "frames": 5,
+      "attach": []
+    }
+  },
+  "anchor": [
+    48,
+    42
+  ]
+}
