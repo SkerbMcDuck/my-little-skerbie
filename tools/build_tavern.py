@@ -193,10 +193,10 @@ for x in range(cx - 7, cx + 3, 3):                             # foam
 
 # ---- 6. Back-bar shelves with bottles and jars
 for sy in (SHELF1, SHELF2):
-    box(20, sy, 156, sy + 3, "wood", 2)
-    for bx in (26, 150):
+    box(66, sy, 156, sy + 3, "wood", 2)
+    for bx in (70, 150):
         box(bx, sy + 4, bx + 2, sy + 8, "dwood", 2)
-    x = 24
+    x = 69
     while x < 150:
         kind = rnd.choice(("bottle", "bottle", "jar", "gap"))
         col = rnd.choice(("teal", "pink", "amber", "moss", "glass"))
@@ -221,14 +221,14 @@ for sy in (SHELF1, SHELF2):
             x += 5
 
 # ---- 7. The bar counter
-box(14, BAR_TOP, 160, BAR_TOP + 5, "wood", 3)                  # worn top, catching the light
-for x in range(14, 161):
+box(62, BAR_TOP, 160, BAR_TOP + 5, "wood", 3)                  # worn top, catching the light
+for x in range(62, 161):
     put(x, BAR_TOP + 6, "dwood", 0)
-for x0 in range(16, 158, 24):                                  # front panels with trim
+for x0 in range(64, 158, 24):                                  # front panels with trim
     box(x0, BAR_TOP + 7, x0 + 22, BAR_BOT - 4, "dwood", 2)
     box(x0 + 3, BAR_TOP + 10, x0 + 19, BAR_BOT - 7, "dwood", 1)
-box(14, BAR_BOT - 3, 160, BAR_BOT, "wood", 1)                  # kick rail
-for x in range(20, 158, 46):                                   # iron studs
+box(62, BAR_BOT - 3, 160, BAR_BOT, "wood", 1)                  # kick rail
+for x in range(68, 158, 46):                                   # iron studs
     put(x, BAR_TOP + 2, "iron", 3)
 
 # ---- 8. Barrel rack on the right: barrels lying on their sides, round ends towards us
@@ -291,8 +291,129 @@ for y in range(FRONT, H):                                      # foreground fall
         m, s = mat[y][x]
         put(x, y, m, s - (1 + (y - FRONT) // 14))
 
-# ---- 10. Hanging lanterns (chains from the lower beam) and the light they throw
-LANTERNS = [(48, 182), (112, 196), (176, 182)]
+# ---- 10. Clutter: the hearth, herbs drying under the gallery, wall trophies, tables and stools
+HX0, HX1, HTOP = 16, 58, 238                                   # stone hearth on the left wall
+for y in range(GALLERY + 9, BAR_BOT + 1):                      # chimney breast, then the wide hearth
+    x0, x1 = (24, 50) if y < HTOP else (HX0, HX1)
+    course = (y - GALLERY) // 5
+    for x in range(x0, x1 + 1):
+        joint = (y - GALLERY) % 5 == 0 or (x + (course % 2) * 4) % 8 == 0
+        lit = x < x0 + 2 or random.Random(course * 13 + x // 8).random() < 0.3
+        put(x, y, "stone", 0 if joint else (2 if lit else 1))
+box(HX0 - 2, HTOP - 3, HX1 + 2, HTOP, "wood", 2)                # mantel shelf
+for y in range(300, BAR_BOT + 1):                              # the fire mouth: an arched opening
+    for x in range(24, 51):
+        dx = (x - 37) / 13.5
+        if y >= 314 - 14 * math.sqrt(max(0, 1 - dx * dx)):
+            put(x, y, "earth", 0)
+for k in range(8):                                             # logs
+    put(26 + k * 3, BAR_BOT - 1, "wood", 2)
+    put(27 + k * 3, BAR_BOT - 2, "wood", 1)
+for y in range(314, BAR_BOT - 2):                              # the fire (an animated overlay can sit on "hearth_fire")
+    for x in range(27, 48):
+        hgt = 10 + 6 * math.sin(x * 0.9) + (3 if x % 5 == 0 else 0)
+        d = (BAR_BOT - 2 - y) / hgt
+        if d < 1 and abs(x - 37.5) < 11 * (1 - d * 0.6):
+            fixed[(x, y)] = "f0" if d < 0.35 and abs(x - 37.5) < 6 else "f1" if d < 0.7 else "f2"
+for x, kind in ((20, "candle"), (30, "mug"), (44, "mug"), (55, "candle")):   # things on the mantel
+    if kind == "candle":
+        box(x, HTOP - 8, x + 1, HTOP - 4, "chalk", 3, lit_edge=False)
+        fixed[(x, HTOP - 9)] = "f0"
+        fixed[(x + 1, HTOP - 10)] = "f1"
+    else:
+        box(x, HTOP - 8, x + 4, HTOP - 4, "wood", 2)
+        put(x + 5, HTOP - 7, "wood", 1)
+        put(x + 5, HTOP - 6, "wood", 1)
+
+# an antlered skull mounted on the chimney breast
+SKX, SKY = 37, 200
+box(SKX - 6, SKY - 4, SKX + 6, SKY + 9, "dwood", 2)            # the plaque
+disc(SKX, SKY + 1, 4.5, "bone", 2)
+box(SKX - 2, SKY + 4, SKX + 2, SKY + 8, "bone", 2, lit_edge=False)
+put(SKX - 2, SKY + 1, "earth", 0)
+put(SKX + 2, SKY + 1, "earth", 0)
+for side in (-1, 1):
+    pts = [(SKX + side * 3, SKY - 2), (SKX + side * 8, SKY - 8), (SKX + side * 9, SKY - 14), (SKX + side * 12, SKY - 18)]
+    for (ax, ay), (bx, by) in zip(pts, pts[1:]):
+        for t in range(11):
+            for w in (0, 1):
+                put(int(ax + (bx - ax) * t / 10) + w, int(ay + (by - ay) * t / 10), "bone", 3 - w)
+    for (ax, ay) in ((SKX + side * 8, SKY - 8), (SKX + side * 9, SKY - 14)):
+        put(int(ax + side * 2), int(ay - 2), "bone", 2)
+        put(int(ax + side * 3), int(ay - 3), "bone", 2)
+
+# a round shield with two crossed spears over the barrel rack
+SHX, SHY = 186, 206
+for side in (-1, 1):
+    for t in range(-18, 19):
+        put(SHX + t, int(SHY + side * t * 0.8), "wood", 2)
+    for k in (18, 19):
+        put(SHX + k, int(SHY + side * k * 0.8), "iron", 3)
+disc(SHX, SHY, 9, "wood", 2)
+for a in range(0, 360, 6):
+    put(int(SHX + 8.5 * math.cos(math.radians(a))), int(SHY + 8.5 * math.sin(math.radians(a))), "iron", 2)
+for x in range(SHX - 8, SHX + 9, 4):
+    for y in range(SHY - 7, SHY + 8):
+        if math.hypot(x - SHX, y - SHY) < 8 and abs(x - SHX) > 2:
+            put(x, y, "wood", 1)
+disc(SHX, SHY, 2.4, "iron", 2)
+
+# herbs and garlic drying from a rod under the gallery
+box(62, GALLERY + 9, 160, GALLERY + 10, "dwood", 2, lit_edge=False)
+for i, x in enumerate(range(66, 158, 9)):
+    put(x, GALLERY + 11, "root", 2)
+    if i % 3 == 2:                                             # a string of garlic
+        for k in range(3):
+            disc(x, GALLERY + 13 + k * 3, 1.5, "bone", 2)
+    else:                                                      # an upside-down herb bundle
+        ln = 7 + (i * 3) % 4
+        for k in range(ln):
+            w = 1 + k // 3
+            for dx in range(-w, w + 1):
+                if (i + k + dx) % 3:
+                    fixed[(x + dx, GALLERY + 12 + k)] = "moss"
+                else:
+                    put(x + dx, GALLERY + 12 + k, "root", 3)
+        put(x, GALLERY + 12, "wood", 2)
+
+
+# tables and stools at the back of the floor, clear of the fight ring
+def table(x0, x1, top):
+    box(x0, top, x1, top + 3, "wood", 3)
+    box(x0 + 1, top + 4, x1 - 1, top + 5, "wood", 1, lit_edge=False)
+    cx = (x0 + x1) // 2
+    box(cx - 2, top + 6, cx + 2, top + 18, "wood", 2)
+    box(cx - 7, top + 18, cx + 7, top + 20, "wood", 2)
+
+
+def stool(cx, top):
+    box(cx - 5, top, cx + 5, top + 2, "wood", 3)
+    for lx in (cx - 4, cx + 4):
+        for y in range(top + 3, top + 11):
+            put(lx + (1 if lx < cx else -1) * ((y - top) // 4), y, "wood", 2)
+            put(lx + (1 if lx < cx else -1) * ((y - top) // 4) + 1, y, "wood", 1)
+
+
+def mug(x, base, foam=True):
+    box(x, base - 5, x + 3, base - 1, "wood", 2)
+    put(x + 4, base - 4, "wood", 1)
+    put(x + 4, base - 3, "wood", 1)
+    if foam:
+        for xx in range(x, x + 4):
+            put(xx, base - 6, "bone", 4)
+
+
+table(14, 42, FLOOR + 4)
+stool(51, FLOOR + 12)
+mug(19, FLOOR + 4)
+mug(32, FLOOR + 4, foam=False)
+table(176, 208, FLOOR + 4)
+stool(166, FLOOR + 12)
+mug(186, FLOOR + 4)
+mug(196, FLOOR + 4)
+
+# ---- 11. Hanging lanterns (chains from the lower beam) and the light they throw
+LANTERNS = [(80, 182), (126, 196), (176, 182)]
 for lx, ly in LANTERNS:
     for y in range(BEAM2 + 7, ly - 6):
         put(lx, y, "iron", 2 if y % 3 else 1)
@@ -303,9 +424,10 @@ for lx, ly in LANTERNS:
         for x in range(lx - 2, lx + 3):
             d = abs(x - lx) + abs(y - ly - 1) * 0.7
             fixed[(x, y)] = "f0" if d < 1.5 else "f1" if d < 2.8 else "f2"
-LIGHTS = [(lx, ly, 80, 1.5) for lx, ly in LANTERNS] + [(112, 400, 110, 0.8), (60, 250, 60, 0.5)]
+LIGHTS = [(lx, ly, 80, 1.5) for lx, ly in LANTERNS] + [(112, 400, 110, 0.8), (100, 250, 50, 0.4),
+                                                       (37, 324, 70, 1.8)]   # the hearth fire
 
-# ---- 11. Light pass + smoke haze, then turn materials into colours
+# ---- 12. Light pass + smoke haze, then turn materials into colours
 pal, inv, rows = {}, {}, []
 chars = iter("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 
@@ -339,14 +461,15 @@ for y in range(H):
     rows.append("".join(line))
 
 SPOTS = {  # pixel positions the game uses (feet / bottom-centre unless noted)
-    "badger": [62, BAR_TOP],          # stands behind the bar; his sprite's bottom is hidden by the counter
+    "badger": [110, BAR_TOP],          # stands behind the bar; his sprite's bottom is hidden by the counter
     "druid": [196, FIGHT - 4],        # at the ring's edge, right side
     "skerbie": [70, FIGHT],
     "beast": [156, FIGHT],
     "crowd_gallery": [112, GALLERY],  # bottom-centre of the upper crowd row
     "crowd_front": [112, H],          # bottom-centre of the front crowd row
     "chairs": [[30, FRONT - 6], [196, FRONT - 6]],
-    "mugs": [[40, BAR_TOP], [102, BAR_TOP], [138, BAR_TOP]],
+    "mugs": [[78, BAR_TOP], [134, BAR_TOP], [150, BAR_TOP]],
+    "hearth_fire": [37, BAR_BOT - 2],  # bottom-centre of the hearth fire, for an animated flame overlay
     "lanterns": [[lx, ly] for lx, ly in LANTERNS],
 }
 json.dump({"width": W, "height": H, "fps": 1, "palette": pal, "dye_zones": {}, "attach": {},

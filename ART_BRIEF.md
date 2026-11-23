@@ -179,7 +179,7 @@ Every enemy: approach/walk [4], attack windup [2] (**with a red warning flash**)
 
 | ID | Beast | Size |
 |---|---|---|
-| BST-1 | Bramble Boar | 64 |
+| BST-1 | Bramble Boar | 72×64 (made bigger and meaner by George, 2026-11-22: huge curved tusks, a hunched charge pose, a bristling thorn crest with glowing amber tips) |
 | BST-2 | Frost Yeti | 72 |
 | BST-3 | Thunder Ox | 80 |
 | BST-4 | Moss Golem | 88 |
