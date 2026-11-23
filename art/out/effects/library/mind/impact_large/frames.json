@@ -1,0 +1,17 @@
+{
+  "width": 64,
+  "height": 64,
+  "fps": 12,
+  "dye_zones": {},
+  "animations": {
+    "impact_large": {
+      "row": 0,
+      "frames": 4,
+      "attach": []
+    }
+  },
+  "anchor": [
+    32,
+    32
+  ]
+}

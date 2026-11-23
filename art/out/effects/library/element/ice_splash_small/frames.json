@@ -1,0 +1,17 @@
+{
+  "width": 40,
+  "height": 20,
+  "fps": 12,
+  "dye_zones": {},
+  "animations": {
+    "ice_splash_small": {
+      "row": 0,
+      "frames": 4,
+      "attach": []
+    }
+  },
+  "anchor": [
+    20,
+    18
+  ]
+}

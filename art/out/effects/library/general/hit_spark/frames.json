@@ -1,0 +1,17 @@
+{
+  "width": 24,
+  "height": 24,
+  "fps": 12,
+  "dye_zones": {},
+  "animations": {
+    "hit_spark": {
+      "row": 0,
+      "frames": 3,
+      "attach": []
+    }
+  },
+  "anchor": [
+    12,
+    12
+  ]
+}

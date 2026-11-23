@@ -1,0 +1,17 @@
+{
+  "width": 32,
+  "height": 32,
+  "fps": 12,
+  "dye_zones": {},
+  "animations": {
+    "ice_impact_small": {
+      "row": 0,
+      "frames": 5,
+      "attach": []
+    }
+  },
+  "anchor": [
+    16,
+    16
+  ]
+}

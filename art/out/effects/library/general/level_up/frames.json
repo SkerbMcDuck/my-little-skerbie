@@ -1,0 +1,17 @@
+{
+  "width": 64,
+  "height": 80,
+  "fps": 10,
+  "dye_zones": {},
+  "animations": {
+    "level_up": {
+      "row": 0,
+      "frames": 6,
+      "attach": []
+    }
+  },
+  "anchor": [
+    32,
+    76
+  ]
+}

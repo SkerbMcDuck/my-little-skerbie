@@ -1,0 +1,17 @@
+{
+  "width": 80,
+  "height": 40,
+  "fps": 12,
+  "dye_zones": {},
+  "animations": {
+    "fire_splash_large": {
+      "row": 0,
+      "frames": 4,
+      "attach": []
+    }
+  },
+  "anchor": [
+    40,
+    38
+  ]
+}

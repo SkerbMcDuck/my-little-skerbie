@@ -1,0 +1,17 @@
+{
+  "width": 80,
+  "height": 80,
+  "fps": 8,
+  "dye_zones": {},
+  "animations": {
+    "ice_aura_large": {
+      "row": 0,
+      "frames": 3,
+      "attach": []
+    }
+  },
+  "anchor": [
+    40,
+    79
+  ]
+}

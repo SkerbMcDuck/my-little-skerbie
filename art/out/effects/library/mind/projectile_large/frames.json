@@ -1,0 +1,17 @@
+{
+  "width": 64,
+  "height": 32,
+  "fps": 12,
+  "dye_zones": {},
+  "animations": {
+    "projectile_large": {
+      "row": 0,
+      "frames": 3,
+      "attach": []
+    }
+  },
+  "anchor": [
+    50,
+    16
+  ]
+}

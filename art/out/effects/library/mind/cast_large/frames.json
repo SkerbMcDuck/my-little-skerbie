@@ -1,0 +1,17 @@
+{
+  "width": 80,
+  "height": 80,
+  "fps": 12,
+  "dye_zones": {},
+  "animations": {
+    "cast_large": {
+      "row": 0,
+      "frames": 5,
+      "attach": []
+    }
+  },
+  "anchor": [
+    40,
+    40
+  ]
+}
