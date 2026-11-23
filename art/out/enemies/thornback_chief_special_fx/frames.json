@@ -1,0 +1,19 @@
+{
+  "width": 112,
+  "height": 64,
+  "fps": 8,
+  "dye_zones": {
+    "eyes": "eE"
+  },
+  "animations": {
+    "special": {
+      "row": 0,
+      "frames": 6,
+      "attach": []
+    }
+  },
+  "anchor": [
+    0,
+    0
+  ]
+}

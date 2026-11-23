@@ -1,0 +1,75 @@
+{
+  "width": 48,
+  "height": 44,
+  "fps": 8,
+  "dye_zones": {
+    "element": "1234",
+    "eyes": "eE"
+  },
+  "animations": {
+    "walk": {
+      "row": 0,
+      "frames": 4,
+      "attach": []
+    },
+    "windup": {
+      "row": 1,
+      "frames": 2,
+      "attach": []
+    },
+    "strike": {
+      "row": 2,
+      "frames": 3,
+      "attach": []
+    },
+    "hit": {
+      "row": 3,
+      "frames": 2,
+      "attach": []
+    },
+    "defeat": {
+      "row": 4,
+      "frames": 4,
+      "attach": [
+        {
+          "root_dx": 0
+        },
+        {
+          "root_dx": 0
+        },
+        {
+          "root_dx": -3
+        },
+        {
+          "root_dx": -8
+        }
+      ]
+    }
+  },
+  "element_ramps": {
+    "ice": [
+      "#f2f9ff",
+      "#cfe9ff",
+      "#9fc9f0",
+      "#4d5e7a"
+    ],
+    "fire": [
+      "#ffe08a",
+      "#ffb347",
+      "#ff7a1a",
+      "#c2410c"
+    ],
+    "water": [
+      "#8ff0e6",
+      "#2ec4b6",
+      "#178f86",
+      "#1f3d44"
+    ],
+    "lightning": [
+      "#fff4b0",
+      "#ffe14d",
+      "#a8945e",
+      "#33303d"
+    ]
+  }
+}

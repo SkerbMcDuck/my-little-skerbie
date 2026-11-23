@@ -1,0 +1,15 @@
+{
+  "width": 6,
+  "height": 6,
+  "fps": 8,
+  "dye_zones": {
+    "eyes": "eE"
+  },
+  "animations": {
+    "fly": {
+      "row": 0,
+      "frames": 2,
+      "attach": []
+    }
+  }
+}

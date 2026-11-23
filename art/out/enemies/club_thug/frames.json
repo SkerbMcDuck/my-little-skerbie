@@ -16,6 +16,34 @@
       "row": 1,
       "frames": 2,
       "attach": []
+    },
+    "strike": {
+      "row": 2,
+      "frames": 3,
+      "attach": []
+    },
+    "hit": {
+      "row": 3,
+      "frames": 2,
+      "attach": []
+    },
+    "defeat": {
+      "row": 4,
+      "frames": 4,
+      "attach": [
+        {
+          "root_dx": 0
+        },
+        {
+          "root_dx": 0
+        },
+        {
+          "root_dx": -3
+        },
+        {
+          "root_dx": -8
+        }
+      ]
     }
   },
   "element_ramps": {
