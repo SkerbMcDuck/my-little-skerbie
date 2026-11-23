@@ -37,7 +37,7 @@ def main():
     sheet = Image.new('RGBA', (w * cols, h * len(anims)), (0, 0, 0, 0))
     meta = {'width': w, 'height': h, 'fps': fps,
             'dye_zones': d.get('dye_zones', {}), 'animations': {}}
-    for k in ('grip', 'angle_step', 'anchor'):  # gear sprites: where they attach, and how they rotate
+    for k in ('grip', 'angle_step', 'anchor', 'element_ramps'):  # gear: attach/rotate; enemies: element swaps
         if k in d:
             meta[k] = d[k]
     for r, (name, frames) in enumerate(anims.items()):
