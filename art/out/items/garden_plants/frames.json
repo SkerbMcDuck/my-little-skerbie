@@ -1,0 +1,42 @@
+{
+  "width": 20,
+  "height": 24,
+  "fps": 8,
+  "dye_zones": {},
+  "animations": {
+    "glowcap": {
+      "row": 0,
+      "frames": 3,
+      "attach": []
+    },
+    "ember_pepper": {
+      "row": 1,
+      "frames": 3,
+      "attach": []
+    },
+    "moonberry": {
+      "row": 2,
+      "frames": 3,
+      "attach": []
+    },
+    "frostmint": {
+      "row": 3,
+      "frames": 3,
+      "attach": []
+    },
+    "ironroot": {
+      "row": 4,
+      "frames": 3,
+      "attach": []
+    },
+    "shadow_plum": {
+      "row": 5,
+      "frames": 3,
+      "attach": []
+    }
+  },
+  "anchor": [
+    10,
+    23
+  ]
+}

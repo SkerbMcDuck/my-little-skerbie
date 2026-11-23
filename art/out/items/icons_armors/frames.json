@@ -4,9 +4,9 @@
   "fps": 1,
   "dye_zones": {},
   "animations": {
-    "look": {
+    "armors": {
       "row": 0,
-      "frames": 8,
+      "frames": 6,
       "attach": []
     }
   }

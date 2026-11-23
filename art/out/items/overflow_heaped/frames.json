@@ -1,0 +1,17 @@
+{
+  "width": 60,
+  "height": 38,
+  "fps": 8,
+  "dye_zones": {},
+  "animations": {
+    "pile": {
+      "row": 0,
+      "frames": 1,
+      "attach": []
+    }
+  },
+  "anchor": [
+    30,
+    37
+  ]
+}

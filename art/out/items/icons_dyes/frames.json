@@ -1,0 +1,13 @@
+{
+  "width": 24,
+  "height": 24,
+  "fps": 1,
+  "dye_zones": {},
+  "animations": {
+    "dyes": {
+      "row": 0,
+      "frames": 5,
+      "attach": []
+    }
+  }
+}
