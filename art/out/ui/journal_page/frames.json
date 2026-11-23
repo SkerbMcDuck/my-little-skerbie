@@ -1,0 +1,13 @@
+{
+  "width": 168,
+  "height": 220,
+  "fps": 1,
+  "dye_zones": {},
+  "animations": {
+    "journal_page": {
+      "row": 0,
+      "frames": 1,
+      "attach": []
+    }
+  }
+}

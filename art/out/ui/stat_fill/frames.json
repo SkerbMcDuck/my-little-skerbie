@@ -1,0 +1,13 @@
+{
+  "width": 8,
+  "height": 5,
+  "fps": 1,
+  "dye_zones": {},
+  "animations": {
+    "fill": {
+      "row": 0,
+      "frames": 3,
+      "attach": []
+    }
+  }
+}

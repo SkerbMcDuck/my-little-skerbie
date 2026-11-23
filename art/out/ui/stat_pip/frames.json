@@ -1,0 +1,13 @@
+{
+  "width": 7,
+  "height": 7,
+  "fps": 1,
+  "dye_zones": {},
+  "animations": {
+    "pip": {
+      "row": 0,
+      "frames": 2,
+      "attach": []
+    }
+  }
+}
