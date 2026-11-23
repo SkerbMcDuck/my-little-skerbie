@@ -1,0 +1,17 @@
+{
+  "width": 128,
+  "height": 48,
+  "fps": 12,
+  "dye_zones": {},
+  "animations": {
+    "slam_large": {
+      "row": 0,
+      "frames": 5,
+      "attach": []
+    }
+  },
+  "anchor": [
+    64,
+    45
+  ]
+}

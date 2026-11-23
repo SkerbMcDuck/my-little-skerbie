@@ -1,0 +1,17 @@
+{
+  "width": 32,
+  "height": 40,
+  "fps": 8,
+  "dye_zones": {},
+  "animations": {
+    "heal_sparkle": {
+      "row": 0,
+      "frames": 4,
+      "attach": []
+    }
+  },
+  "anchor": [
+    16,
+    39
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "width": 56,
+  "height": 64,
+  "fps": 12,
+  "dye_zones": {
+    "smoke": "sStT"
+  },
+  "animations": {
+    "mini_evolution": {
+      "row": 0,
+      "frames": 6,
+      "attach": []
+    }
+  },
+  "anchor": [
+    28,
+    63
+  ]
+}

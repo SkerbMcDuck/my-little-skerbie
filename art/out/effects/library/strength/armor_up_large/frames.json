@@ -1,0 +1,17 @@
+{
+  "width": 96,
+  "height": 96,
+  "fps": 12,
+  "dye_zones": {},
+  "animations": {
+    "armor_up_large": {
+      "row": 0,
+      "frames": 4,
+      "attach": []
+    }
+  },
+  "anchor": [
+    48,
+    48
+  ]
+}

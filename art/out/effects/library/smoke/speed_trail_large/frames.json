@@ -1,0 +1,19 @@
+{
+  "width": 80,
+  "height": 48,
+  "fps": 12,
+  "dye_zones": {
+    "smoke": "sStT"
+  },
+  "animations": {
+    "speed_trail_large": {
+      "row": 0,
+      "frames": 3,
+      "attach": []
+    }
+  },
+  "anchor": [
+    79,
+    24
+  ]
+}

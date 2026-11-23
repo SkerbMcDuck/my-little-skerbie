@@ -1,0 +1,17 @@
+{
+  "width": 48,
+  "height": 32,
+  "fps": 12,
+  "dye_zones": {},
+  "animations": {
+    "afterimage_small": {
+      "row": 0,
+      "frames": 3,
+      "attach": []
+    }
+  },
+  "anchor": [
+    47,
+    16
+  ]
+}

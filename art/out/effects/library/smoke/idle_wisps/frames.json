@@ -1,0 +1,19 @@
+{
+  "width": 24,
+  "height": 32,
+  "fps": 6,
+  "dye_zones": {
+    "smoke": "sStT"
+  },
+  "animations": {
+    "idle_wisps": {
+      "row": 0,
+      "frames": 4,
+      "attach": []
+    }
+  },
+  "anchor": [
+    12,
+    31
+  ]
+}

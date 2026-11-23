@@ -1,0 +1,17 @@
+{
+  "width": 40,
+  "height": 40,
+  "fps": 12,
+  "dye_zones": {},
+  "animations": {
+    "patch_up": {
+      "row": 0,
+      "frames": 4,
+      "attach": []
+    }
+  },
+  "anchor": [
+    20,
+    20
+  ]
+}

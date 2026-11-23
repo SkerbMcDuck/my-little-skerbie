@@ -1,0 +1,17 @@
+{
+  "width": 16,
+  "height": 24,
+  "fps": 12,
+  "dye_zones": {},
+  "animations": {
+    "coin_pop": {
+      "row": 0,
+      "frames": 3,
+      "attach": []
+    }
+  },
+  "anchor": [
+    8,
+    23
+  ]
+}

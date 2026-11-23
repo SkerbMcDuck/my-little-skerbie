@@ -1,0 +1,19 @@
+{
+  "width": 80,
+  "height": 128,
+  "fps": 8,
+  "dye_zones": {
+    "smoke": "sStT"
+  },
+  "animations": {
+    "evolution": {
+      "row": 0,
+      "frames": 12,
+      "attach": []
+    }
+  },
+  "anchor": [
+    40,
+    124
+  ]
+}

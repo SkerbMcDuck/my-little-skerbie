@@ -1,0 +1,17 @@
+{
+  "width": 32,
+  "height": 40,
+  "fps": 12,
+  "dye_zones": {},
+  "animations": {
+    "parry_flash": {
+      "row": 0,
+      "frames": 3,
+      "attach": []
+    }
+  },
+  "anchor": [
+    16,
+    20
+  ]
+}

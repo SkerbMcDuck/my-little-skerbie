@@ -1,0 +1,19 @@
+{
+  "width": 96,
+  "height": 128,
+  "fps": 12,
+  "dye_zones": {
+    "smoke": "sStT"
+  },
+  "animations": {
+    "power_flare_large": {
+      "row": 0,
+      "frames": 5,
+      "attach": []
+    }
+  },
+  "anchor": [
+    48,
+    120
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "width": 96,
+  "height": 64,
+  "fps": 12,
+  "dye_zones": {},
+  "animations": {
+    "afterimage_large": {
+      "row": 0,
+      "frames": 3,
+      "attach": []
+    }
+  },
+  "anchor": [
+    95,
+    32
+  ]
+}
