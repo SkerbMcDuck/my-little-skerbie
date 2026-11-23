@@ -253,6 +253,66 @@ def icon(name):
                         hit = not hit
                 if hit:
                     im.put(x, y, "#ffe08a" if x < 8 and y < 9 else "#f2c14e")
+    elif name == "rotate_phone":                                            # a phone turning sideways, a curved arrow
+        for y in range(3, 14):
+            for x in range(2, 8):
+                im.put(x, y, M if (x in (2, 7) or y in (3, 13)) else D)
+        im.put(4, 12, L)
+        im.put(5, 12, L)
+        for k in range(9):
+            a = math.radians(200 + k * 18)
+            im.put(round(10 + 4 * math.cos(a)), round(8 + 4 * math.sin(a)), L)
+        for (x, y) in ((13, 9), (14, 8), (12, 10), (14, 10)):
+            im.put(x, y, L)
+    elif name in ("sound_on", "sound_off"):                                 # a speaker
+        for y in range(6, 11):
+            for x in range(2, 5):
+                im.put(x, y, L)
+        for y in range(3, 14):
+            w = 4 - abs(y - 8.5) * 0.6
+            for x in range(5, 5 + max(1, int(w + 1))):
+                im.put(x, y, L if x < 7 else M)
+        if name == "sound_on":
+            for r in (3, 5):
+                for k in range(7):
+                    a = math.radians(-45 + k * 15)
+                    im.put(round(9 + r * math.cos(a)), round(8.5 + r * math.sin(a)), L)
+        else:
+            line(10, 5, 14, 11, "#f2a0b0")
+            line(14, 5, 10, 11, "#f2a0b0")
+    elif name in ("music_on", "music_off"):                                 # a pair of notes
+        disc(4.5, 12, 2)
+        disc(11.5, 10.5, 2)
+        line(6, 3, 6, 12, L)
+        line(13, 2, 13, 10, L)
+        line(6, 3, 13, 2, L, 2)
+        if name == "music_off":
+            line(2, 2, 14, 14, "#f2a0b0", 2)
+    elif name == "share":                                                   # backup: a scroll with an arrow out
+        for y in range(5, 14):
+            for x in range(3, 11):
+                im.put(x, y, L if y < 12 else M)
+        for x in range(3, 11):
+            im.put(x, 5, M)
+        line(9, 9, 14, 4, "#ffd08a", 2)
+        for (x, y) in ((12, 3), (13, 3), (14, 3), (14, 4), (14, 5)):
+            im.put(x, y, "#ffd08a")
+    elif name == "restore":                                                 # a scroll with an arrow coming home
+        for y in range(5, 14):
+            for x in range(5, 13):
+                im.put(x, y, L if y < 12 else M)
+        for x in range(5, 13):
+            im.put(x, 5, M)
+        line(1, 3, 6, 9, "#ffd08a", 2)
+        for (x, y) in ((6, 10), (5, 10), (4, 10), (7, 9), (7, 8)):
+            im.put(x, y, "#ffd08a")
+    elif name == "skill_point":                                             # a glowing diamond gem
+        for y in range(2, 15):
+            for x in range(2, 15):
+                d = abs(x - 8) + abs(y - 8)
+                if d <= 6:
+                    im.put(x, y, "#e2b8ff" if (x < 8 and y < 8) else "#c77dff" if d < 4 else "#9b4dff")
+        im.put(6, 5, "#ffffff")
     # outline everything
     filled = set(im.px)
     for (x, y) in list(filled):
@@ -264,6 +324,83 @@ def icon(name):
 
 
 LOOK_ICONS = ["settings", "home", "hint", "confirm", "back", "lock", "level_star"]
+ICONS = ["settings", "home", "hint", "rotate_phone", "sound_on", "sound_off", "music_on", "music_off", "back", "confirm",
+         "share", "restore", "lock", "skill_point", "level_star"]
+
+
+def doodle(name):
+    # The recap's doodles: scrawled in brown ink, as if he drew them with a muddy paw. 16x16, transparent.
+    im = Img(16, 16)
+    ink, ink2 = INK, "#7a5636"
+
+    def line(x0, y0, x1, y1, c=ink):
+        n = max(abs(x1 - x0), abs(y1 - y0), 1)
+        for k in range(int(n * 2) + 1):
+            t = k / (n * 2)
+            jx = (1 if (k * 7) % 11 == 0 else 0)                              # a wobbly, hand-drawn line
+            im.put(round(x0 + (x1 - x0) * t) + jx * 0, round(y0 + (y1 - y0) * t), c)
+
+    def circle(cx, cy, r, c=ink, gap=0):
+        for k in range(36):
+            if gap and k % gap == 0:
+                continue
+            a = math.radians(k * 10)
+            im.put(round(cx + r * math.cos(a)), round(cy + r * 0.95 * math.sin(a)), c)
+
+    if name == "gathered":                                                  # a basket with berries
+        line(2, 8, 14, 8)
+        line(3, 8, 5, 14)
+        line(13, 8, 11, 14)
+        line(5, 14, 11, 14)
+        for x in range(5, 12, 3):
+            line(x, 9, x, 13, ink2)
+        for (x, y) in ((5, 6), (8, 5), (11, 6)):
+            circle(x, y, 1.6)
+        for k in range(9):
+            a = math.radians(180 + k * 22)
+            im.put(round(8 + 6 * math.cos(a)), round(8 + 4 * math.sin(a)), ink2)
+    elif name == "built":                                                   # a hammer
+        line(4, 13, 10, 5)
+        line(5, 13, 11, 5)
+        for (x0, y0, x1, y1) in ((7, 3, 13, 7), (8, 2, 14, 6), (7, 3, 8, 2), (13, 7, 14, 6)):
+            line(x0, y0, x1, y1)
+    elif name == "found":                                                   # a sparkling gem
+        line(4, 6, 12, 6)
+        line(4, 6, 8, 13)
+        line(12, 6, 8, 13)
+        line(6, 3, 10, 3)
+        line(4, 6, 6, 3)
+        line(12, 6, 10, 3)
+        line(8, 6, 8, 13, ink2)
+        for (x, y) in ((14, 2), (13, 1), (15, 1), (14, 0), (1, 10)):
+            im.put(x, y, ink2)
+    elif name == "raid":                                                    # three claw scratches
+        for k in range(3):
+            line(4 + k * 3, 2, 9 + k * 3, 14)
+            line(5 + k * 3, 2, 10 + k * 3, 14, ink2)
+    elif name == "overflow":                                                # a heap with an arrow spilling over
+        line(2, 14, 14, 14)
+        line(3, 14, 6, 9)
+        line(6, 9, 10, 8)
+        line(10, 8, 13, 14)
+        circle(6, 12, 1.3, ink2)
+        circle(10, 11, 1.3, ink2)
+        line(11, 6, 14, 3)
+        line(14, 3, 11, 3)
+        line(14, 3, 14, 6)
+    elif name == "paw":                                                     # his signature paw print
+        for y in range(7, 15):                                              # the pad, filled
+            for x in range(4, 13):
+                if ((x - 8) / 4.2) ** 2 + ((y - 10.5) / 3.4) ** 2 <= 1:
+                    im.put(x, y, ink)
+        for (x, y) in ((3, 6), (6, 3), (10, 3), (13, 6)):                   # four toe beans
+            for dy in (0, 1):
+                for dx in (0, 1):
+                    im.put(x + dx, y + dy, ink)
+    return im
+
+
+DOODLES = ["gathered", "built", "found", "raid", "overflow", "paw"]
 
 if __name__ == "__main__":
     write("panel", [panel()], {"nine_slice": [12, 12, 12, 12], "opacity": 0.92})
@@ -273,3 +410,6 @@ if __name__ == "__main__":
     write("stat_pip", [pip(False), pip(True)], {"pip_names": ["empty", "filled"]}, anim="pip")
     if LOOK:
         write("icons_look", [icon(n) for n in LOOK_ICONS], {"icon_names": LOOK_ICONS}, anim="icons")
+    else:
+        write("icons", [icon(n) for n in ICONS], {"icon_names": ICONS}, anim="icons")
+        write("doodles", [doodle(n) for n in DOODLES], {"doodle_names": DOODLES}, anim="doodles")
