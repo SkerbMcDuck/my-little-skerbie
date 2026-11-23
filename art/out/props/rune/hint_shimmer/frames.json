@@ -1,0 +1,13 @@
+{
+  "width": 36,
+  "height": 36,
+  "fps": 8,
+  "dye_zones": {},
+  "animations": {
+    "shimmer": {
+      "row": 0,
+      "frames": 3,
+      "attach": []
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "width": 72,
+  "height": 60,
+  "fps": 8,
+  "dye_zones": {},
+  "animations": {
+    "bubble": {
+      "row": 0,
+      "frames": 4,
+      "attach": []
+    }
+  },
+  "anchor": [
+    36,
+    59
+  ]
+}

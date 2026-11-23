@@ -1,0 +1,17 @@
+{
+  "width": 64,
+  "height": 64,
+  "fps": 8,
+  "dye_zones": {},
+  "animations": {
+    "burst": {
+      "row": 0,
+      "frames": 6,
+      "attach": []
+    }
+  },
+  "anchor": [
+    32,
+    32
+  ]
+}

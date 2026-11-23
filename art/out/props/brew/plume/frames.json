@@ -1,0 +1,19 @@
+{
+  "width": 64,
+  "height": 96,
+  "fps": 8,
+  "dye_zones": {
+    "tint": "1234"
+  },
+  "animations": {
+    "plume": {
+      "row": 0,
+      "frames": 5,
+      "attach": []
+    }
+  },
+  "anchor": [
+    32,
+    95
+  ]
+}

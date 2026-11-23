@@ -1,0 +1,17 @@
+{
+  "width": 80,
+  "height": 40,
+  "fps": 8,
+  "dye_zones": {},
+  "animations": {
+    "dump": {
+      "row": 0,
+      "frames": 4,
+      "attach": []
+    }
+  },
+  "anchor": [
+    40,
+    0
+  ]
+}

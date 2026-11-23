@@ -1,0 +1,17 @@
+{
+  "width": 16,
+  "height": 16,
+  "fps": 8,
+  "dye_zones": {},
+  "animations": {
+    "tumble": {
+      "row": 0,
+      "frames": 2,
+      "attach": []
+    }
+  },
+  "anchor": [
+    8,
+    8
+  ]
+}

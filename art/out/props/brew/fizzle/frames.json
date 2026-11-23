@@ -1,0 +1,17 @@
+{
+  "width": 48,
+  "height": 40,
+  "fps": 8,
+  "dye_zones": {},
+  "animations": {
+    "fizzle": {
+      "row": 0,
+      "frames": 4,
+      "attach": []
+    }
+  },
+  "anchor": [
+    24,
+    39
+  ]
+}

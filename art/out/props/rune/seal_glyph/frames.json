@@ -1,0 +1,22 @@
+{
+  "width": 40,
+  "height": 40,
+  "fps": 8,
+  "dye_zones": {},
+  "animations": {
+    "unlit": {
+      "row": 0,
+      "frames": 1,
+      "attach": []
+    },
+    "lit": {
+      "row": 1,
+      "frames": 1,
+      "attach": []
+    }
+  },
+  "anchor": [
+    20,
+    20
+  ]
+}

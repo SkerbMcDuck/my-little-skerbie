@@ -1,0 +1,17 @@
+{
+  "width": 20,
+  "height": 14,
+  "fps": 8,
+  "dye_zones": {},
+  "animations": {
+    "tag": {
+      "row": 0,
+      "frames": 1,
+      "attach": []
+    }
+  },
+  "anchor": [
+    10,
+    0
+  ]
+}

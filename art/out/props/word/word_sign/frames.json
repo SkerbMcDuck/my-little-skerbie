@@ -1,0 +1,17 @@
+{
+  "width": 48,
+  "height": 22,
+  "fps": 8,
+  "dye_zones": {},
+  "animations": {
+    "sign": {
+      "row": 0,
+      "frames": 1,
+      "attach": []
+    }
+  },
+  "anchor": [
+    24,
+    21
+  ]
+}

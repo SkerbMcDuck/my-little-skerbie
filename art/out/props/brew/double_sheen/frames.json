@@ -1,0 +1,17 @@
+{
+  "width": 32,
+  "height": 32,
+  "fps": 8,
+  "dye_zones": {},
+  "animations": {
+    "sheen": {
+      "row": 0,
+      "frames": 3,
+      "attach": []
+    }
+  },
+  "anchor": [
+    16,
+    31
+  ]
+}

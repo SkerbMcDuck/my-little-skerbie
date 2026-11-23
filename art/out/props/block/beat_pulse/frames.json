@@ -1,0 +1,17 @@
+{
+  "width": 192,
+  "height": 192,
+  "fps": 8,
+  "dye_zones": {},
+  "animations": {
+    "pulse": {
+      "row": 0,
+      "frames": 2,
+      "attach": []
+    }
+  },
+  "anchor": [
+    96,
+    96
+  ]
+}

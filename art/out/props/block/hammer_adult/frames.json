@@ -1,0 +1,38 @@
+{
+  "width": 64,
+  "height": 64,
+  "fps": 8,
+  "dye_zones": {},
+  "animations": {
+    "ice": {
+      "row": 0,
+      "frames": 16,
+      "attach": []
+    },
+    "fire": {
+      "row": 1,
+      "frames": 16,
+      "attach": []
+    },
+    "water": {
+      "row": 2,
+      "frames": 16,
+      "attach": []
+    },
+    "lightning": {
+      "row": 3,
+      "frames": 16,
+      "attach": []
+    },
+    "earth": {
+      "row": 4,
+      "frames": 16,
+      "attach": []
+    }
+  },
+  "grip": [
+    32,
+    32
+  ],
+  "angle_step": 22.5
+}
